@@ -1,0 +1,11 @@
+{
+  "auths": {},
+  "credHelpers": {
+    "amazonaws.com": "ecr-login",
+    "asia.gcr.io": "gcr",
+    "eu.gcr.io": "gcr",
+    "gcr.io": "gcr",
+    "staging-k8s.gcr.io": "gcr",
+    "us.gcr.io": "gcr"
+  }
+}
