@@ -11,7 +11,7 @@ import (
 
 func main() {
 	configFile := "/kaniko/.docker/config.json"
-	// configFile := "../docker-manifest/config.json"
+	// configFile := "test/config.json"
 	jsonFile, err := os.Open(configFile)
 	if err != nil {
 		fmt.Println(err)

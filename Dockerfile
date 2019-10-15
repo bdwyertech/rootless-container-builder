@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.title="kaniko-gitlab" \
       org.opencontainers.image.source="https://github.com/bdwyertech/docker-kaniko-gitlab.git" \
       org.opencontainers.image.revision=$VCS_REF \
       org.opencontainers.image.created=$BUILD_DATE \
-	  org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/bdwyertech/docker-kaniko-gitlab.git"
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
