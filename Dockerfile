@@ -1,7 +1,7 @@
 FROM golang:1.13-alpine
 WORKDIR /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility
 COPY helper-utility/ .
-RUN CGO_ENABLED=0 GOOS=linux go build .
+RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor go build .
 
 FROM gcr.io/kaniko-project/executor:debug
 
