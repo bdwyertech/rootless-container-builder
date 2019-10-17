@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -67,9 +66,12 @@ func main() {
 
 	ioutil.WriteFile(configFile, []byte(cfgPretty), 0644)
 
-	// DEBUG
-	fmt.Printf("DEBUG: Docker Config: %s\n", configFile)
-	fmt.Println(cfgPretty)
+	if v := os.Getenv("KCFG_DEBUG"); len(v) != 0 {
+		log.Printf("DEBUG: Docker Config: %s\n", configFile)
+		log.Println(cfgPretty)
+	}
+}
+
 func getValue(key string) string {
 	val := os.Getenv(key)
 	if v := os.Getenv("KCFG_ENABLE_AWS_PSTORE"); len(v) != 0 {
