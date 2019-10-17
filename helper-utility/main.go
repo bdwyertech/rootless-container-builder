@@ -28,6 +28,25 @@ func main() {
 		}
 	}
 
+	// Docker Auth Configuration
+	for _, v := range os.Environ() {
+		if strings.HasPrefix(v, "DKR_AUTH_") {
+			s := strings.Split(v, "=")
+			cnf := strings.Split(s[0], "__")
+			val := s[1]
+			if len(cnf) == 2 {
+				if key := cnf[1]; len(key) != 0 {
+					if repo := os.Getenv(cnf[0]); len(repo) != 0 {
+						cfg.Set(val, "auths", repo, strings.ToLower(key))
+					} else {
+						log.Printf("WARN: Unable to find repo for %s", s[0])
+						continue
+					}
+				}
+			}
+		}
+	}
+
 	// Proxy Configuration
 	if v := os.Getenv("KCFG_PROXY"); len(v) != 0 {
 		if v := os.Getenv("http_proxy"); len(v) != 0 {
