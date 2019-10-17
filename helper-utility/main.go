@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -14,7 +15,7 @@ func main() {
 	// configFile := "test/config.json"
 	jsonFile, err := os.Open(configFile)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	defer jsonFile.Close()
 	byteValue, _ := ioutil.ReadAll(jsonFile)
@@ -24,6 +25,19 @@ func main() {
 		if strings.HasPrefix(v, "ECR_LOGIN_") {
 			s := strings.Split(v, "=")
 			cfg.Set("ecr-login", "credHelpers", s[1])
+		}
+	}
+
+	// Proxy Configuration
+	if v := os.Getenv("KCFG_PROXY"); len(v) != 0 {
+		if v := os.Getenv("http_proxy"); len(v) != 0 {
+			cfg.SetP(v, "proxies.default.httpProxy")
+		}
+		if v := os.Getenv("https_proxy"); len(v) != 0 {
+			cfg.SetP(v, "proxies.default.httpsProxy")
+		}
+		if v := os.Getenv("no_proxy"); len(v) != 0 {
+			cfg.SetP(v, "proxies.default.noProxy")
 		}
 	}
 
