@@ -19,6 +19,7 @@ DKR_AUTH_GITLAB__AUTH="gitlab_token"
 ```
 You can pull values from AWS SSM ParameterStore by setting `KCFG_ENABLE_AWS_PSTORE` and ensuring you pass a valid Parameter ARN
 ```bash
+KCFG_ENABLE_AWS_PSTORE=1
 DKR_AUTH_GITLAB=https://gitlab.myorg.net
 DKR_AUTH_GITLAB__AUTH=arn:aws:ssm:us-east-1::parameter/path/to/credential/value
 ```
