@@ -16,13 +16,26 @@ import (
 func main() {
 	configFile := "/kaniko/.docker/config.json"
 	// configFile := "test/config.json"
-	jsonFile, err := os.Open(configFile)
+	jsonFile, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	cfg, err := gabs.ParseJSON(byteValue)
+
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cfg := &gabs.Container{}
+	if len(byteValue) == 0 {
+		cfg, err = gabs.ParseJSON([]byte(`{}`))
+	} else {
+		cfg, err = gabs.ParseJSON(byteValue)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for _, v := range os.Environ() {
 		if strings.HasPrefix(v, "ECR_LOGIN_") {
@@ -64,7 +77,9 @@ func main() {
 
 	cfgPretty := cfg.StringIndent("", "  ")
 
-	ioutil.WriteFile(configFile, []byte(cfgPretty), 0644)
+	jsonFile.Truncate(0)
+	jsonFile.Seek(0, 0)
+	jsonFile.Write([]byte(cfgPretty))
 
 	if v := os.Getenv("KCFG_DEBUG"); len(v) != 0 {
 		log.Printf("DEBUG: Docker Config: %s\n", configFile)
