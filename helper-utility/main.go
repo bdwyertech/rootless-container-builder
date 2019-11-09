@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 
@@ -91,26 +95,54 @@ func getValue(key string) string {
 	val := os.Getenv(key)
 	if v := os.Getenv("DKRCFG_ENABLE_AWS_PSTORE"); len(v) != 0 {
 		if strings.HasPrefix(val, "arn:aws:ssm:") {
-			return getParameter(val)
+			assumeRole := &AssumeRoleConfig{
+				Profile:         getEnv(key+"__PROFILE", ""),
+				RoleARN:         getEnv(key+"__ROLE_ARN", ""),
+				ExternalID:      getEnv(key+"__EXTERNAL_ID", ""),
+				RoleSessionName: getEnv(key+"__SESSION_NAME", ""),
+			}
+			return getParameter(val, assumeRole)
 		}
 	}
 	return val
 }
 
-func getParameter(key string) (val string) {
+func getParameter(key string, roleCfg *AssumeRoleConfig) (val string) {
 	// Marshal Request
 	prm := strings.Split(key, ":parameter")[1]
 	region := strings.Split(key, ":")[3]
 
 	// AWS Session
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
+	sess_opts := session.Options{
 		Config: *aws.NewConfig().WithRegion(region),
-		// Profile: "tss_dev",
-		// SharedConfigState: session.SharedConfigEnable,
-	}))
+	}
+	if roleCfg.Profile != "" {
+		sess_opts.Profile = roleCfg.Profile
+	}
+	sess := session.Must(session.NewSessionWithOptions(sess_opts))
+
+	creds := &credentials.Credentials{}
+	if roleCfg.RoleARN != "" {
+		// Get AssumeRole Credentials
+		creds = stscreds.NewCredentials(sess, roleCfg.RoleARN, func(p *stscreds.AssumeRoleProvider) {
+			if roleCfg.RoleSessionName != "" {
+				p.RoleSessionName = roleCfg.RoleSessionName
+			} else {
+				p.RoleSessionName = fmt.Sprintf("kaniko-gitlab-%d", time.Now().UTC().UnixNano())
+			}
+			if roleCfg.ExternalID != "" {
+				p.ExternalID = aws.String(roleCfg.ExternalID)
+			}
+		})
+	} else {
+		creds = sess.Config.Credentials
+	}
 
 	// SSM Client
-	ssmclient := ssm.New(sess)
+	ssmcfg := &aws.Config{
+		Credentials: creds,
+	}
+	ssmclient := ssm.New(sess, ssmcfg)
 	resp, err := ssmclient.GetParameter(&ssm.GetParameterInput{
 		Name:           aws.String(prm),
 		WithDecryption: aws.Bool(true),
@@ -122,7 +154,21 @@ func getParameter(key string) (val string) {
 	return
 }
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 type DockerConfig struct {
 	Auths       map[string]interface{} `json:"auths"`
 	CredHelpers map[string]interface{} `json:"credHelpers"`
+}
+
+type AssumeRoleConfig struct {
+	Profile         string
+	RoleARN         string
+	ExternalID      string
+	RoleSessionName string
 }
