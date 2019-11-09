@@ -95,13 +95,8 @@ func getValue(key string) string {
 	val := os.Getenv(key)
 	if v := os.Getenv("DKRCFG_ENABLE_AWS_PSTORE"); len(v) != 0 {
 		if strings.HasPrefix(val, "arn:aws:ssm:") {
-			assumeRole := &AssumeRoleConfig{
-				Profile:         getEnv(key+"__PROFILE", ""),
-				RoleARN:         getEnv(key+"__ROLE_ARN", ""),
-				ExternalID:      getEnv(key+"__EXTERNAL_ID", ""),
-				RoleSessionName: getEnv(key+"__SESSION_NAME", ""),
-			}
-			return getParameter(val, assumeRole)
+			assumeRoleConfig := getAssumeRoleConfig(key)
+			return getParameter(val, assumeRoleConfig)
 		}
 	}
 	return val
@@ -151,6 +146,19 @@ func getParameter(key string, roleCfg *AssumeRoleConfig) (val string) {
 		log.Fatalf("ERROR: ssm.GetParameter:: %s\n%s", key, err)
 	}
 	val = *resp.Parameter.Value
+	return
+}
+
+func getAssumeRoleConfig(key string) (config *AssumeRoleConfig) {
+	// Prefer Key-Specific Config over Base Config
+	keycfg := key + "__AWS_PSTORE_"
+	basecfg := strings.Split(key, "__")[0] + "____AWS_PSTORE_"
+	config = &AssumeRoleConfig{
+		Profile:         getEnv(keycfg+"PROFILE", getEnv(basecfg+"PROFILE", "")),
+		RoleARN:         getEnv(keycfg+"ROLE_ARN", getEnv(basecfg+"ROLE_ARN", "")),
+		ExternalID:      getEnv(keycfg+"EXTERNAL_ID", getEnv(basecfg+"EXTERNAL_ID", "")),
+		RoleSessionName: getEnv(keycfg+"SESSION_NAME", getEnv(basecfg+"SESSION_NAME", "")),
+	}
 	return
 }
 
