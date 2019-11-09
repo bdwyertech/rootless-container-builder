@@ -22,6 +22,7 @@ You can pull values from AWS SSM ParameterStore by setting `KCFG_ENABLE_AWS_PSTO
 DKRCFG_ENABLE_AWS_PSTORE=1
 DKR_AUTH_GITLAB=https://gitlab.myorg.net
 DKR_AUTH_GITLAB__AUTH=arn:aws:ssm:us-east-1::parameter/path/to/credential/value
+DKR_AUTH_GITLAB__AUTH__ROLE_ARN=arn:aws:iam::567898765432:role/my_parameterstore_role
 ```
 
 ### Proxy Configuration
