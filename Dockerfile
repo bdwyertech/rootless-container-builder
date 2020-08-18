@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine as helper
+FROM golang:1.15-alpine as helper
 WORKDIR /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility
 COPY helper-utility/ .
 RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor go build .
