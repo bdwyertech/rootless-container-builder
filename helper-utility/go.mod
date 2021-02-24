@@ -1,8 +1,8 @@
 module github.com/bdwyertech/kaniko-gitlab/helper-utility
 
-go 1.15
+go 1.16
 
 require (
 	github.com/Jeffail/gabs/v2 v2.6.0
-	github.com/aws/aws-sdk-go v1.34.6
+	github.com/aws/aws-sdk-go v1.37.17
 )
