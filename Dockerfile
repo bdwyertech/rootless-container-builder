@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility
 COPY helper-utility/ .
 RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor go build -ldflags="-s -w" -trimpath .
 
-FROM gcr.io/kaniko-project/executor:debug
+FROM gcr.io/kaniko-project/executor:v1.6.0-debug
 
 COPY --from=helper /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility/helper-utility /kaniko/.
 
@@ -20,7 +20,7 @@ LABEL org.opencontainers.image.title="bdwyertech/kaniko-gitlab" \
       org.label-schema.name="bdwyertech/kaniko-gitlab" \
       org.label-schema.description="For running Kaniko within a GitLab CI Environment" \
       org.label-schema.url="https://hub.docker.com/r/bdwyertech/kaniko-gitlab" \
-      org.label-schema.vcs-url="https://github.com/bdwyertech/docker-kaniko-gitlab.git"\
+      org.label-schema.vcs-url="https://github.com/bdwyertech/docker-kaniko-gitlab.git" \
       org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.build-date=$BUILD_DATE
 
