@@ -1,15 +1,16 @@
 version: 2
 updates:
-- package-ecosystem: gomod
-  directory: "/helper-utility"
-  schedule:
-    interval: monthly
-    time: "08:00"
-    timezone: America/New_York
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: github.com/aws/aws-sdk-go
-    versions:
-    - 1.36.19
-    - 1.37.1
-    - 1.37.20
+  - package-ecosystem: gomod
+    directory: '/helper-utility'
+    schedule:
+      interval: monthly
+      time: '08:00'
+      timezone: America/New_York
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+      time: '08:00'
+      timezone: America/New_York

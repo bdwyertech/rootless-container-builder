@@ -18,8 +18,8 @@ import (
 )
 
 func main() {
-	configFile := "/kaniko/.docker/config.json"
-	// configFile := "test/config.json"
+	// configFile := "/kaniko/.docker/config.json"
+	configFile := "test/config.json"
 	jsonFile, err := os.OpenFile(configFile, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
