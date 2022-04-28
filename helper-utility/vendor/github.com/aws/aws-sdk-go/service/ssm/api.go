@@ -59,13 +59,13 @@ func (c *SSM) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *requ
 // AddTagsToResource API operation for Amazon Simple Systems Manager (SSM).
 //
 // Adds or overwrites one or more tags for the specified resource. Tags are
-// metadata that you can assign to your documents, managed nodes, maintenance
-// windows, Parameter Store parameters, and patch baselines. Tags enable you
-// to categorize your resources in different ways, for example, by purpose,
-// owner, or environment. Each tag consists of a key and an optional value,
-// both of which you define. For example, you could define a set of tags for
-// your account's managed nodes that helps you track each node's owner and stack
-// level. For example:
+// metadata that you can assign to your automations, documents, managed nodes,
+// maintenance windows, Parameter Store parameters, and patch baselines. Tags
+// enable you to categorize your resources in different ways, for example, by
+// purpose, owner, or environment. Each tag consists of a key and an optional
+// value, both of which you define. For example, you could define a set of tags
+// for your account's managed nodes that helps you track each node's owner and
+// stack level. For example:
 //
 //    * Key=Owner,Value=DbAdmin
 //
@@ -79,7 +79,8 @@ func (c *SSM) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *requ
 //
 //    * Key=Stack,Value=Test
 //
-// Each resource can have a maximum of 50 tags.
+// Most resources can have a maximum of 50 tags. Automations can have a maximum
+// of 5 tags.
 //
 // We recommend that you devise a set of tag keys that meets your needs for
 // each resource type. Using a consistent set of tag keys makes it easier for
@@ -8598,12 +8599,15 @@ func (c *SSM) GetMaintenanceWindowTaskRequest(input *GetMaintenanceWindowTaskInp
 
 // GetMaintenanceWindowTask API operation for Amazon Simple Systems Manager (SSM).
 //
-// Lists the tasks in a maintenance window.
+// Retrieves the details of a maintenance window task.
 //
 // For maintenance window tasks without a specified target, you can't supply
 // values for --max-errors and --max-concurrency. Instead, the system inserts
 // a placeholder value of 1, which may be reported in the response to this command.
 // These values don't affect the running of your task and can be ignored.
+//
+// To retrieve a list of tasks in a maintenance window, instead use the DescribeMaintenanceWindowTasks
+// command.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -14558,6 +14562,10 @@ func (c *SSM) UpdateDocumentDefaultVersionRequest(input *UpdateDocumentDefaultVe
 //
 // Set the default version of a document.
 //
+// If you change a document version for a State Manager association, Systems
+// Manager immediately runs the association unless you previously specifed the
+// apply-only-at-cron-interval parameter.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -15766,6 +15774,8 @@ type AddTagsToResourceInput struct {
 	//
 	// PatchBaseline: pb-012345abcde
 	//
+	// Automation: example-c160-4567-8519-012345abcde
+	//
 	// OpsMetadata object: ResourceID for tagging is created from the Amazon Resource
 	// Name (ARN) for the object. Specifically, ResourceID is created from the strings
 	// that come after the word opsmetadata in the ARN. For example, an OpsMetadata
@@ -16159,7 +16169,10 @@ type Association struct {
 	// The association version.
 	AssociationVersion *string `type:"string"`
 
-	// The version of the document used in the association.
+	// The version of the document used in the association. If you change a document
+	// version for a State Manager association, Systems Manager immediately runs
+	// the association unless you previously specifed the apply-only-at-cron-interval
+	// parameter.
 	//
 	// State Manager doesn't support running associations that use a new version
 	// of a document if that document is shared from another account. State Manager
@@ -16184,6 +16197,9 @@ type Association struct {
 	// A cron expression that specifies a schedule when the association runs. The
 	// schedule runs in Coordinated Universal Time (UTC).
 	ScheduleExpression *string `min:"1" type:"string"`
+
+	// Number of days to wait after the scheduled day to run an association.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
 
 	// The managed nodes targeted by the request to create an association. You can
 	// target all managed nodes in an Amazon Web Services account by specifying
@@ -16260,6 +16276,12 @@ func (s *Association) SetOverview(v *AssociationOverview) *Association {
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *Association) SetScheduleExpression(v string) *Association {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *Association) SetScheduleOffset(v int64) *Association {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -16430,6 +16452,9 @@ type AssociationDescription struct {
 	// A cron expression that specifies a schedule when the association runs.
 	ScheduleExpression *string `min:"1" type:"string"`
 
+	// Number of days to wait after the scheduled day to run an association.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
+
 	// The association status.
 	Status *AssociationStatus `type:"structure"`
 
@@ -16590,6 +16615,12 @@ func (s *AssociationDescription) SetParameters(v map[string][]*string) *Associat
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *AssociationDescription) SetScheduleExpression(v string) *AssociationDescription {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *AssociationDescription) SetScheduleOffset(v int64) *AssociationDescription {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -17436,6 +17467,9 @@ type AssociationVersionInfo struct {
 	// version was created.
 	ScheduleExpression *string `min:"1" type:"string"`
 
+	// Number of days to wait after the scheduled day to run an association.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
+
 	// The mode for generating association compliance. You can specify AUTO or MANUAL.
 	// In AUTO mode, the system uses the status of the association execution to
 	// determine the compliance status. If the association execution runs successfully,
@@ -17559,6 +17593,12 @@ func (s *AssociationVersionInfo) SetParameters(v map[string][]*string) *Associat
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *AssociationVersionInfo) SetScheduleExpression(v string) *AssociationVersionInfo {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *AssociationVersionInfo) SetScheduleOffset(v int64) *AssociationVersionInfo {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -20995,6 +21035,9 @@ type CreateAssociationBatchRequestEntry struct {
 	// A cron expression that specifies a schedule when the association runs.
 	ScheduleExpression *string `min:"1" type:"string"`
 
+	// Number of days to wait after the scheduled day to run an association.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
+
 	// The mode for generating association compliance. You can specify AUTO or MANUAL.
 	// In AUTO mode, the system uses the status of the association execution to
 	// determine the compliance status. If the association execution runs successfully,
@@ -21052,6 +21095,9 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 	}
 	if s.ScheduleExpression != nil && len(*s.ScheduleExpression) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("ScheduleExpression", 1))
+	}
+	if s.ScheduleOffset != nil && *s.ScheduleOffset < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("ScheduleOffset", 1))
 	}
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
@@ -21163,6 +21209,12 @@ func (s *CreateAssociationBatchRequestEntry) SetParameters(v map[string][]*strin
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *CreateAssociationBatchRequestEntry) SetScheduleExpression(v string) *CreateAssociationBatchRequestEntry {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *CreateAssociationBatchRequestEntry) SetScheduleOffset(v int64) *CreateAssociationBatchRequestEntry {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -21296,6 +21348,18 @@ type CreateAssociationInput struct {
 	// A cron expression when the association will be applied to the target(s).
 	ScheduleExpression *string `min:"1" type:"string"`
 
+	// Number of days to wait after the scheduled day to run an association. For
+	// example, if you specified a cron schedule of cron(0 0 ? * THU#2 *), you could
+	// specify an offset of 3 to run the association each Sunday after the second
+	// Thursday of the month. For more information about cron schedules for associations,
+	// see Reference: Cron and rate expressions for Systems Manager (https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html)
+	// in the Amazon Web Services Systems Manager User Guide.
+	//
+	// To use offsets, you must specify the ApplyOnlyAtCronInterval parameter. This
+	// option tells the system not to run an association immediately after you create
+	// it.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
+
 	// The mode for generating association compliance. You can specify AUTO or MANUAL.
 	// In AUTO mode, the system uses the status of the association execution to
 	// determine the compliance status. If the association execution runs successfully,
@@ -21360,6 +21424,9 @@ func (s *CreateAssociationInput) Validate() error {
 	}
 	if s.ScheduleExpression != nil && len(*s.ScheduleExpression) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("ScheduleExpression", 1))
+	}
+	if s.ScheduleOffset != nil && *s.ScheduleOffset < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("ScheduleOffset", 1))
 	}
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
@@ -21471,6 +21538,12 @@ func (s *CreateAssociationInput) SetParameters(v map[string][]*string) *CreateAs
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *CreateAssociationInput) SetScheduleExpression(v string) *CreateAssociationInput {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *CreateAssociationInput) SetScheduleOffset(v int64) *CreateAssociationInput {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -28731,7 +28804,7 @@ type DocumentDescription struct {
 	PendingReviewVersion *string `type:"string"`
 
 	// The list of operating system (OS) platforms compatible with this SSM document.
-	PlatformTypes []*string `type:"list"`
+	PlatformTypes []*string `type:"list" enum:"PlatformType"`
 
 	// A list of SSM documents required by a document. For example, an ApplicationConfiguration
 	// document requires an ApplicationConfigurationSchema document.
@@ -29064,7 +29137,7 @@ type DocumentIdentifier struct {
 	Owner *string `type:"string"`
 
 	// The operating system platform.
-	PlatformTypes []*string `type:"list"`
+	PlatformTypes []*string `type:"list" enum:"PlatformType"`
 
 	// A list of SSM documents required by a document. For example, an ApplicationConfiguration
 	// document requires an ApplicationConfigurationSchema document.
@@ -33744,7 +33817,7 @@ func (s *GetParametersOutput) SetParameters(v []*Parameter) *GetParametersOutput
 type GetPatchBaselineForPatchGroupInput struct {
 	_ struct{} `type:"structure"`
 
-	// Returns he operating system rule specified for patch groups using the patch
+	// Returns the operating system rule specified for patch groups using the patch
 	// baseline.
 	OperatingSystem *string `type:"string" enum:"OperatingSystem"`
 
@@ -43600,7 +43673,7 @@ type NotificationConfig struct {
 	// about these events, see Monitoring Systems Manager status changes using Amazon
 	// SNS notifications (https://docs.aws.amazon.com/systems-manager/latest/userguide/monitoring-sns-notifications.html)
 	// in the Amazon Web Services Systems Manager User Guide.
-	NotificationEvents []*string `type:"list"`
+	NotificationEvents []*string `type:"list" enum:"NotificationEvent"`
 
 	// The type of notification.
 	//
@@ -48488,13 +48561,10 @@ type PutParameterInput struct {
 	// Systems Manager parameters (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-su-create.html)
 	// in the Amazon Web Services Systems Manager User Guide.
 	//
-	// The maximum length constraint listed below includes capacity for additional
-	// system attributes that aren't part of the name. The maximum length for a
-	// parameter name, including the full length of the parameter ARN, is 1011 characters.
-	// For example, the length of the following parameter name is 65 characters,
-	// not 20 characters:
-	//
-	// arn:aws:ssm:us-east-2:111122223333:parameter/ExampleParameterName
+	// The maximum length constraint of 2048 characters listed below includes 1037
+	// characters reserved for internal use by Systems Manager. The maximum length
+	// for a parameter name that you create is 1011 characters. This includes the
+	// characters in the ARN that precede the name you specify, such as arn:aws:ssm:us-east-2:111122223333:parameter/.
 	//
 	// Name is a required field
 	Name *string `min:"1" type:"string" required:"true"`
@@ -49654,6 +49724,8 @@ type RemoveTagsFromResourceInput struct {
 	// ManagedInstance: mi-012345abcde
 	//
 	// MaintenanceWindow: mw-012345abcde
+	//
+	// Automation: example-c160-4567-8519-012345abcde
 	//
 	// PatchBaseline: pb-012345abcde
 	//
@@ -52670,7 +52742,7 @@ type StartAutomationExecutionInput struct {
 	//
 	//    * Key=OS,Value=Windows
 	//
-	// To add tags to an existing patch baseline, use the AddTagsToResource operation.
+	// To add tags to an existing automation, use the AddTagsToResource operation.
 	Tags []*Tag `type:"list"`
 
 	// A location is a combination of Amazon Web Services Regions and/or Amazon
@@ -53127,7 +53199,8 @@ type StartSessionInput struct {
 	// launched by default.
 	DocumentName *string `type:"string"`
 
-	// Reserved for future use.
+	// The values you want to specify for the parameters defined in the Session
+	// document.
 	Parameters map[string][]*string `type:"map"`
 
 	// The reason for connecting to the instance. This value is included in the
@@ -55043,11 +55116,20 @@ type UpdateAssociationInput struct {
 	// this option if you don't want an association to run immediately after you
 	// update it. This parameter isn't supported for rate expressions.
 	//
-	// Also, if you specified this option when you created the association, you
-	// can reset it. To do so, specify the no-apply-only-at-cron-interval parameter
-	// when you update the association from the command line. This parameter forces
-	// the association to run immediately after updating it and according to the
-	// interval specified.
+	// If you chose this option when you created an association and later you edit
+	// that association or you make changes to the SSM document on which that association
+	// is based (by using the Documents page in the console), State Manager applies
+	// the association at the next specified cron interval. For example, if you
+	// chose the Latest version of an SSM document when you created an association
+	// and you edit the association by choosing a different document version on
+	// the Documents page, State Manager applies the association at the next specified
+	// cron interval if you previously selected this option. If this option wasn't
+	// selected, State Manager immediately runs the association.
+	//
+	// You can reset this option. To do so, specify the no-apply-only-at-cron-interval
+	// parameter when you update the association from the command line. This parameter
+	// forces the association to run immediately after updating it and according
+	// to the interval specified.
 	ApplyOnlyAtCronInterval *bool `type:"boolean"`
 
 	// The ID of the association you want to update.
@@ -55150,6 +55232,18 @@ type UpdateAssociationInput struct {
 	// The cron expression used to schedule the association that you want to update.
 	ScheduleExpression *string `min:"1" type:"string"`
 
+	// Number of days to wait after the scheduled day to run an association. For
+	// example, if you specified a cron schedule of cron(0 0 ? * THU#2 *), you could
+	// specify an offset of 3 to run the association each Sunday after the second
+	// Thursday of the month. For more information about cron schedules for associations,
+	// see Reference: Cron and rate expressions for Systems Manager (https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html)
+	// in the Amazon Web Services Systems Manager User Guide.
+	//
+	// To use offsets, you must specify the ApplyOnlyAtCronInterval parameter. This
+	// option tells the system not to run an association immediately after you create
+	// it.
+	ScheduleOffset *int64 `min:"1" type:"integer"`
+
 	// The mode for generating association compliance. You can specify AUTO or MANUAL.
 	// In AUTO mode, the system uses the status of the association execution to
 	// determine the compliance status. If the association execution runs successfully,
@@ -55208,6 +55302,9 @@ func (s *UpdateAssociationInput) Validate() error {
 	}
 	if s.ScheduleExpression != nil && len(*s.ScheduleExpression) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("ScheduleExpression", 1))
+	}
+	if s.ScheduleOffset != nil && *s.ScheduleOffset < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("ScheduleOffset", 1))
 	}
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
@@ -55325,6 +55422,12 @@ func (s *UpdateAssociationInput) SetParameters(v map[string][]*string) *UpdateAs
 // SetScheduleExpression sets the ScheduleExpression field's value.
 func (s *UpdateAssociationInput) SetScheduleExpression(v string) *UpdateAssociationInput {
 	s.ScheduleExpression = &v
+	return s
+}
+
+// SetScheduleOffset sets the ScheduleOffset field's value.
+func (s *UpdateAssociationInput) SetScheduleOffset(v int64) *UpdateAssociationInput {
+	s.ScheduleOffset = &v
 	return s
 }
 
@@ -55603,6 +55706,10 @@ type UpdateDocumentInput struct {
 	// The version of the document that you want to update. Currently, Systems Manager
 	// supports updating only the latest version of the document. You can specify
 	// the version number of the latest version or use the $LATEST variable.
+	//
+	// If you change a document version for a State Manager association, Systems
+	// Manager immediately runs the association unless you previously specifed the
+	// apply-only-at-cron-interval parameter.
 	DocumentVersion *string `type:"string"`
 
 	// The name of the SSM document that you want to update.
@@ -59156,6 +59263,9 @@ const (
 
 	// OperatingSystemRaspbian is a OperatingSystem enum value
 	OperatingSystemRaspbian = "RASPBIAN"
+
+	// OperatingSystemRockyLinux is a OperatingSystem enum value
+	OperatingSystemRockyLinux = "ROCKY_LINUX"
 )
 
 // OperatingSystem_Values returns all elements of the OperatingSystem enum
@@ -59172,6 +59282,7 @@ func OperatingSystem_Values() []string {
 		OperatingSystemDebian,
 		OperatingSystemMacos,
 		OperatingSystemRaspbian,
+		OperatingSystemRockyLinux,
 	}
 }
 
@@ -59928,6 +60039,9 @@ const (
 
 	// ResourceTypeForTaggingOpsMetadata is a ResourceTypeForTagging enum value
 	ResourceTypeForTaggingOpsMetadata = "OpsMetadata"
+
+	// ResourceTypeForTaggingAutomation is a ResourceTypeForTagging enum value
+	ResourceTypeForTaggingAutomation = "Automation"
 )
 
 // ResourceTypeForTagging_Values returns all elements of the ResourceTypeForTagging enum
@@ -59940,6 +60054,7 @@ func ResourceTypeForTagging_Values() []string {
 		ResourceTypeForTaggingPatchBaseline,
 		ResourceTypeForTaggingOpsItem,
 		ResourceTypeForTaggingOpsMetadata,
+		ResourceTypeForTaggingAutomation,
 	}
 }
 
