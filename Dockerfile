@@ -3,7 +3,7 @@ WORKDIR /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility
 COPY helper-utility/ .
 RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor go build -ldflags="-s -w" -trimpath .
 
-FROM gcr.io/kaniko-project/executor:v1.9.0-debug
+FROM gcr.io/kaniko-project/executor:v1.9.1-debug
 
 COPY --from=helper /go/src/github.com/bdwyertech/kaniko-gitlab/helper-utility/helper-utility /kaniko/.
 
