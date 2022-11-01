@@ -641,6 +641,9 @@ func (c *SSM) CreateAssociationRequest(input *CreateAssociationInput) (req *requ
 //   - InvalidTargetMaps
 //     TargetMap parameter isn't valid.
 //
+//   - InvalidTag
+//     The specified tag key or value isn't valid.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/CreateAssociation
 func (c *SSM) CreateAssociation(input *CreateAssociationInput) (*CreateAssociationOutput, error) {
 	req, out := c.CreateAssociationRequest(input)
@@ -12095,9 +12098,14 @@ func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInp
 //
 //   - DocumentPermissionLimit
 //     The document can't be shared with more Amazon Web Services user accounts.
-//     You can share a document with a maximum of 20 accounts. You can publicly
-//     share up to five documents. If you need to increase this limit, contact Amazon
-//     Web Services Support.
+//     You can specify a maximum of 20 accounts per API operation to share a private
+//     document.
+//
+//     By default, you can share a private document with a maximum of 1,000 accounts
+//     and publicly share up to five documents.
+//
+//     If you need to increase the quota for privately or publicly shared Systems
+//     Manager documents, contact Amazon Web Services Support.
 //
 //   - DocumentLimitExceeded
 //     You can have at most 500 active SSM documents.
@@ -15846,6 +15854,173 @@ func (s AddTagsToResourceOutput) GoString() string {
 	return s.String()
 }
 
+// A CloudWatch alarm you apply to an automation or command.
+type Alarm struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your CloudWatch alarm.
+	//
+	// Name is a required field
+	Name *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Alarm) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Alarm) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Alarm) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Alarm"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetName sets the Name field's value.
+func (s *Alarm) SetName(v string) *Alarm {
+	s.Name = &v
+	return s
+}
+
+// The details for the CloudWatch alarm you want to apply to an automation or
+// command.
+type AlarmConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the CloudWatch alarm specified in the configuration.
+	//
+	// Alarms is a required field
+	Alarms []*Alarm `min:"1" type:"list" required:"true"`
+
+	// If you specify true for this value, your automation or command continue to
+	// run even if we can't gather information about the state of your CloudWatch
+	// alarm. The default value is false.
+	IgnorePollAlarmFailure *bool `type:"boolean"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmConfiguration) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AlarmConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AlarmConfiguration"}
+	if s.Alarms == nil {
+		invalidParams.Add(request.NewErrParamRequired("Alarms"))
+	}
+	if s.Alarms != nil && len(s.Alarms) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Alarms", 1))
+	}
+	if s.Alarms != nil {
+		for i, v := range s.Alarms {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Alarms", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAlarms sets the Alarms field's value.
+func (s *AlarmConfiguration) SetAlarms(v []*Alarm) *AlarmConfiguration {
+	s.Alarms = v
+	return s
+}
+
+// SetIgnorePollAlarmFailure sets the IgnorePollAlarmFailure field's value.
+func (s *AlarmConfiguration) SetIgnorePollAlarmFailure(v bool) *AlarmConfiguration {
+	s.IgnorePollAlarmFailure = &v
+	return s
+}
+
+// The details about the state of your CloudWatch alarm.
+type AlarmStateInformation struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your CloudWatch alarm.
+	//
+	// Name is a required field
+	Name *string `min:"1" type:"string" required:"true"`
+
+	// The state of your CloudWatch alarm.
+	//
+	// State is a required field
+	State *string `type:"string" required:"true" enum:"ExternalAlarmState"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmStateInformation) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmStateInformation) GoString() string {
+	return s.String()
+}
+
+// SetName sets the Name field's value.
+func (s *AlarmStateInformation) SetName(v string) *AlarmStateInformation {
+	s.Name = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *AlarmStateInformation) SetState(v string) *AlarmStateInformation {
+	s.State = &v
+	return s
+}
+
 // Error returned if an attempt is made to register a patch group with a patch
 // baseline that is already registered with a different patch baseline.
 type AlreadyExistsException struct {
@@ -16318,6 +16493,10 @@ func (s *AssociationAlreadyExists) RequestID() string {
 type AssociationDescription struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you create a new associations, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -16441,6 +16620,9 @@ type AssociationDescription struct {
 
 	// The managed nodes targeted by the request.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked during the association.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -16459,6 +16641,12 @@ func (s AssociationDescription) String() string {
 // value will be replaced with "sensitive".
 func (s AssociationDescription) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AssociationDescription) SetAlarmConfiguration(v *AlarmConfiguration) *AssociationDescription {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -16617,6 +16805,12 @@ func (s *AssociationDescription) SetTargets(v []*Target) *AssociationDescription
 	return s
 }
 
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AssociationDescription) SetTriggeredAlarms(v []*AlarmStateInformation) *AssociationDescription {
+	s.TriggeredAlarms = v
+	return s
+}
+
 // The specified association doesn't exist.
 type AssociationDoesNotExist struct {
 	_            struct{}                  `type:"structure"`
@@ -16685,6 +16879,10 @@ func (s *AssociationDoesNotExist) RequestID() string {
 type AssociationExecution struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The association ID.
 	AssociationId *string `type:"string"`
 
@@ -16709,6 +16907,9 @@ type AssociationExecution struct {
 
 	// The status of the association execution.
 	Status *string `type:"string"`
+
+	// The CloudWatch alarms that were invoked by the association.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -16727,6 +16928,12 @@ func (s AssociationExecution) String() string {
 // value will be replaced with "sensitive".
 func (s AssociationExecution) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AssociationExecution) SetAlarmConfiguration(v *AlarmConfiguration) *AssociationExecution {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -16774,6 +16981,12 @@ func (s *AssociationExecution) SetResourceCountByStatus(v string) *AssociationEx
 // SetStatus sets the Status field's value.
 func (s *AssociationExecution) SetStatus(v string) *AssociationExecution {
 	s.Status = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AssociationExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *AssociationExecution {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -18043,6 +18256,9 @@ func (s *AutomationDefinitionVersionNotFoundException) RequestID() string {
 type AutomationExecution struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The ID of a State Manager association used in the Automation operation.
 	AssociationId *string `type:"string"`
 
@@ -18148,6 +18364,9 @@ type AutomationExecution struct {
 
 	// The specified targets.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -18166,6 +18385,12 @@ func (s AutomationExecution) String() string {
 // value will be replaced with "sensitive".
 func (s AutomationExecution) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AutomationExecution) SetAlarmConfiguration(v *AlarmConfiguration) *AutomationExecution {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -18354,6 +18579,12 @@ func (s *AutomationExecution) SetTargets(v []*Target) *AutomationExecution {
 	return s
 }
 
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AutomationExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *AutomationExecution {
+	s.TriggeredAlarms = v
+	return s
+}
+
 // A filter used to match specific automation executions. This is used to limit
 // the scope of Automation execution information returned.
 type AutomationExecutionFilter struct {
@@ -18489,6 +18720,9 @@ func (s *AutomationExecutionLimitExceededException) RequestID() string {
 type AutomationExecutionMetadata struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The ID of a State Manager association used in the Automation operation.
 	AssociationId *string `type:"string"`
 
@@ -18584,6 +18818,9 @@ type AutomationExecutionMetadata struct {
 
 	// The targets defined by the user when starting the automation.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -18602,6 +18839,12 @@ func (s AutomationExecutionMetadata) String() string {
 // value will be replaced with "sensitive".
 func (s AutomationExecutionMetadata) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AutomationExecutionMetadata) SetAlarmConfiguration(v *AlarmConfiguration) *AutomationExecutionMetadata {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -18769,6 +19012,12 @@ func (s *AutomationExecutionMetadata) SetTargetParameterName(v string) *Automati
 // SetTargets sets the Targets field's value.
 func (s *AutomationExecutionMetadata) SetTargets(v []*Target) *AutomationExecutionMetadata {
 	s.Targets = v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AutomationExecutionMetadata) SetTriggeredAlarms(v []*AlarmStateInformation) *AutomationExecutionMetadata {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -19280,6 +19529,9 @@ func (s *CloudWatchOutputConfig) SetCloudWatchOutputEnabled(v bool) *CloudWatchO
 type Command struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Amazon CloudWatch Logs information where you want Amazon Web Services Systems
 	// Manager to send the command output.
 	CloudWatchOutputConfig *CloudWatchOutputConfig `type:"structure"`
@@ -19418,6 +19670,9 @@ type Command struct {
 
 	// The TimeoutSeconds value specified for a command.
 	TimeoutSeconds *int64 `min:"30" type:"integer"`
+
+	// The CloudWatch alarm that was invoked by the command.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -19436,6 +19691,12 @@ func (s Command) String() string {
 // value will be replaced with "sensitive".
 func (s Command) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *Command) SetAlarmConfiguration(v *AlarmConfiguration) *Command {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCloudWatchOutputConfig sets the CloudWatchOutputConfig field's value.
@@ -19579,6 +19840,12 @@ func (s *Command) SetTargets(v []*Target) *Command {
 // SetTimeoutSeconds sets the TimeoutSeconds field's value.
 func (s *Command) SetTimeoutSeconds(v int64) *Command {
 	s.TimeoutSeconds = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *Command) SetTriggeredAlarms(v []*AlarmStateInformation) *Command {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -20923,6 +21190,10 @@ func (s *CreateAssociationBatchOutput) SetSuccessful(v []*AssociationDescription
 type CreateAssociationBatchRequestEntry struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you create a new associations, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -21093,6 +21364,11 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
@@ -21123,6 +21399,12 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *CreateAssociationBatchRequestEntry) SetAlarmConfiguration(v *AlarmConfiguration) *CreateAssociationBatchRequestEntry {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -21235,6 +21517,10 @@ func (s *CreateAssociationBatchRequestEntry) SetTargets(v []*Target) *CreateAsso
 
 type CreateAssociationInput struct {
 	_ struct{} `type:"structure"`
+
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
 
 	// By default, when you create a new association, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
@@ -21371,6 +21657,13 @@ type CreateAssociationInput struct {
 	// By default, all associations use AUTO mode.
 	SyncCompliance *string `type:"string" enum:"AssociationSyncCompliance"`
 
+	// Adds or overwrites one or more tags for a State Manager association. Tags
+	// are metadata that you can assign to your Amazon Web Services resources. Tags
+	// enable you to categorize your resources in different ways, for example, by
+	// purpose, owner, or environment. Each tag consists of a key and an optional
+	// value, both of which you define.
+	Tags []*Tag `type:"list"`
+
 	// A location is a combination of Amazon Web Services Regions and Amazon Web
 	// Services accounts where you want to run the association. Use this action
 	// to create an association in multiple Regions and multiple accounts.
@@ -21432,9 +21725,24 @@ func (s *CreateAssociationInput) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
 		}
 	}
 	if s.TargetLocations != nil {
@@ -21462,6 +21770,12 @@ func (s *CreateAssociationInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *CreateAssociationInput) SetAlarmConfiguration(v *AlarmConfiguration) *CreateAssociationInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -21551,6 +21865,12 @@ func (s *CreateAssociationInput) SetScheduleOffset(v int64) *CreateAssociationIn
 // SetSyncCompliance sets the SyncCompliance field's value.
 func (s *CreateAssociationInput) SetSyncCompliance(v string) *CreateAssociationInput {
 	s.SyncCompliance = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreateAssociationInput) SetTags(v []*Tag) *CreateAssociationInput {
+	s.Tags = v
 	return s
 }
 
@@ -21645,7 +21965,7 @@ type CreateDocumentInput struct {
 	// You can't use the following strings as document name prefixes. These are
 	// reserved by Amazon Web Services for use as document name prefixes:
 	//
-	//    * aws-
+	//    * aws
 	//
 	//    * amazon
 	//
@@ -25793,8 +26113,8 @@ type DescribeInstanceInformationInput struct {
 	_ struct{} `type:"structure"`
 
 	// One or more filters. Use a filter to return a more specific list of managed
-	// nodes. You can filter based on tags applied to EC2 instances. Use this Filters
-	// data type instead of InstanceInformationFilterList, which is deprecated.
+	// nodes. You can filter based on tags applied to your managed nodes. Use this
+	// Filters data type instead of InstanceInformationFilterList, which is deprecated.
 	Filters []*InstanceInformationStringFilter `type:"list"`
 
 	// This is a legacy method. We recommend that you don't use this method. Instead,
@@ -29559,9 +29879,14 @@ func (s *DocumentParameter) SetType(v string) *DocumentParameter {
 }
 
 // The document can't be shared with more Amazon Web Services user accounts.
-// You can share a document with a maximum of 20 accounts. You can publicly
-// share up to five documents. If you need to increase this limit, contact Amazon
-// Web Services Support.
+// You can specify a maximum of 20 accounts per API operation to share a private
+// document.
+//
+// By default, you can share a private document with a maximum of 1,000 accounts
+// and publicly share up to five documents.
+//
+// If you need to increase the quota for privately or publicly shared Systems
+// Manager documents, contact Amazon Web Services Support.
 type DocumentPermissionLimit struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -32321,6 +32646,10 @@ func (s *GetMaintenanceWindowExecutionTaskInvocationOutput) SetWindowTargetId(v 
 type GetMaintenanceWindowExecutionTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The time the task execution completed.
 	EndTime *time.Time `type:"timestamp"`
 
@@ -32371,6 +32700,9 @@ type GetMaintenanceWindowExecutionTaskOutput struct {
 	// String and GoString methods.
 	TaskParameters []map[string]*MaintenanceWindowTaskParameterValueExpression `type:"list" sensitive:"true"`
 
+	// The CloudWatch alarms that were invoked by the maintenance window task.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// The type of task that was run.
 	Type *string `type:"string" enum:"MaintenanceWindowTaskType"`
 
@@ -32394,6 +32726,12 @@ func (s GetMaintenanceWindowExecutionTaskOutput) String() string {
 // value will be replaced with "sensitive".
 func (s GetMaintenanceWindowExecutionTaskOutput) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *GetMaintenanceWindowExecutionTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *GetMaintenanceWindowExecutionTaskOutput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetEndTime sets the EndTime field's value.
@@ -32459,6 +32797,12 @@ func (s *GetMaintenanceWindowExecutionTaskOutput) SetTaskExecutionId(v string) *
 // SetTaskParameters sets the TaskParameters field's value.
 func (s *GetMaintenanceWindowExecutionTaskOutput) SetTaskParameters(v []map[string]*MaintenanceWindowTaskParameterValueExpression) *GetMaintenanceWindowExecutionTaskOutput {
 	s.TaskParameters = v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *GetMaintenanceWindowExecutionTaskOutput) SetTriggeredAlarms(v []*AlarmStateInformation) *GetMaintenanceWindowExecutionTaskOutput {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -32764,6 +33108,10 @@ func (s *GetMaintenanceWindowTaskInput) SetWindowTaskId(v string) *GetMaintenanc
 type GetMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The action to take on tasks when the maintenance window cutoff time is reached.
 	// CONTINUE_TASK means that tasks continue to run. For Automation, Lambda, Step
 	// Functions tasks, CANCEL_TASK means that currently running task invocations
@@ -32867,6 +33215,12 @@ func (s GetMaintenanceWindowTaskOutput) String() string {
 // value will be replaced with "sensitive".
 func (s GetMaintenanceWindowTaskOutput) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *GetMaintenanceWindowTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *GetMaintenanceWindowTaskOutput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -35134,14 +35488,26 @@ func (s *InstanceInformationFilter) SetValueSet(v []*string) *InstanceInformatio
 type InstanceInformationStringFilter struct {
 	_ struct{} `type:"structure"`
 
-	// The filter key name to describe your managed nodes. For example:
+	// The filter key name to describe your managed nodes.
 	//
-	// "InstanceIds"|"AgentVersion"|"PingStatus"|"PlatformTypes"|"ActivationIds"|"IamRole"|"ResourceType"|"AssociationStatus"|"Tag
-	// Key"
+	// Valid filter key values: ActivationIds | AgentVersion | AssociationStatus
+	// | IamRole | InstanceIds | PingStatus | PlatformTypes | ResourceType | SourceIds
+	// | SourceTypes | "tag-key" | "tag:{keyname}
 	//
-	// Tag key isn't a valid filter. You must specify either tag-key or tag:keyname
-	// and a string. Here are some valid examples: tag-key, tag:123, tag:al!, tag:Windows.
-	// Here are some invalid examples: tag-keys, Tag Key, tag:, tagKey, abc:keyname.
+	//    * Valid values for the AssociationStatus filter key: Success | Pending
+	//    | Failed
+	//
+	//    * Valid values for the PingStatus filter key: Online | ConnectionLost
+	//    | Inactive (deprecated)
+	//
+	//    * Valid values for the PlatformType filter key: Windows | Linux | MacOS
+	//
+	//    * Valid values for the ResourceType filter key: EC2Instance | ManagedInstance
+	//
+	//    * Valid values for the SourceType filter key: AWS::EC2::Instance | AWS::SSM::ManagedInstance
+	//    | AWS::IoT::Thing
+	//
+	//    * Valid tag examples: Key=tag-key,Values=Purpose | Key=tag:Purpose,Values=Test.
 	//
 	// Key is a required field
 	Key *string `min:"1" type:"string" required:"true"`
@@ -35216,11 +35582,10 @@ type InstancePatchState struct {
 	// BaselineId is a required field
 	BaselineId *string `min:"20" type:"string" required:"true"`
 
-	// The number of managed nodes where patches that are specified as Critical
-	// for compliance reporting in the patch baseline aren't installed. These patches
-	// might be missing, have failed installation, were rejected, or were installed
-	// but awaiting a required managed node reboot. The status of these managed
-	// nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Critical for compliance
+	// reporting in the patch baseline aren't installed. These patches might be
+	// missing, have failed installation, were rejected, or were installed but awaiting
+	// a required managed node reboot. The status of these managed nodes is NON_COMPLIANT.
 	CriticalNonCompliantCount *int64 `type:"integer"`
 
 	// The number of patches from the patch baseline that were attempted to be installed
@@ -35297,9 +35662,9 @@ type InstancePatchState struct {
 	// OperationStartTime is a required field
 	OperationStartTime *time.Time `type:"timestamp" required:"true"`
 
-	// The number of managed nodes with patches installed that are specified as
-	// other than Critical or Security but aren't compliant with the patch baseline.
-	// The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as other than Critical
+	// or Security but aren't compliant with the patch baseline. The status of these
+	// managed nodes is NON_COMPLIANT.
 	OtherNonCompliantCount *int64 `type:"integer"`
 
 	// Placeholder information. This field will always be empty in the current release
@@ -35330,10 +35695,10 @@ type InstancePatchState struct {
 	//    until a reboot is performed.
 	RebootOption *string `type:"string" enum:"RebootOption"`
 
-	// The number of managed nodes where patches that are specified as Security
-	// in a patch advisory aren't installed. These patches might be missing, have
-	// failed installation, were rejected, or were installed but awaiting a required
-	// managed node reboot. The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Security in a patch
+	// advisory aren't installed. These patches might be missing, have failed installation,
+	// were rejected, or were installed but awaiting a required managed node reboot.
+	// The status of these managed nodes is NON_COMPLIANT.
 	SecurityNonCompliantCount *int64 `type:"integer"`
 
 	// The ID of the patch baseline snapshot used during the patching operation
@@ -38525,6 +38890,70 @@ func (s *InvalidSchedule) StatusCode() int {
 
 // RequestID returns the service's response RequestID for request.
 func (s *InvalidSchedule) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified tag key or value isn't valid.
+type InvalidTag struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidTag) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidTag) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidTag(v protocol.ResponseMetadata) error {
+	return &InvalidTag{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidTag) Code() string {
+	return "InvalidTag"
+}
+
+// Message returns the exception's message.
+func (s *InvalidTag) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidTag) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidTag) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidTag) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidTag) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
@@ -41980,7 +42409,7 @@ func (s *ListTagsForResourceOutput) SetTagList(v []*Tag) *ListTagsForResourceOut
 type LoggingInfo struct {
 	_ struct{} `type:"structure"`
 
-	// The name of an S3 bucket where execution logs are stored .
+	// The name of an S3 bucket where execution logs are stored.
 	//
 	// S3BucketName is a required field
 	S3BucketName *string `min:"3" type:"string" required:"true"`
@@ -42205,6 +42634,9 @@ func (s *MaintenanceWindowExecution) SetWindowId(v string) *MaintenanceWindowExe
 type MaintenanceWindowExecutionTaskIdentity struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The time the task execution finished.
 	EndTime *time.Time `type:"timestamp"`
 
@@ -42227,6 +42659,9 @@ type MaintenanceWindowExecutionTaskIdentity struct {
 	// The type of task that ran.
 	TaskType *string `type:"string" enum:"MaintenanceWindowTaskType"`
 
+	// The CloudWatch alarm that was invoked by the maintenance window task.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// The ID of the maintenance window execution that ran the task.
 	WindowExecutionId *string `min:"36" type:"string"`
 }
@@ -42247,6 +42682,12 @@ func (s MaintenanceWindowExecutionTaskIdentity) String() string {
 // value will be replaced with "sensitive".
 func (s MaintenanceWindowExecutionTaskIdentity) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *MaintenanceWindowExecutionTaskIdentity) SetAlarmConfiguration(v *AlarmConfiguration) *MaintenanceWindowExecutionTaskIdentity {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetEndTime sets the EndTime field's value.
@@ -42288,6 +42729,12 @@ func (s *MaintenanceWindowExecutionTaskIdentity) SetTaskExecutionId(v string) *M
 // SetTaskType sets the TaskType field's value.
 func (s *MaintenanceWindowExecutionTaskIdentity) SetTaskType(v string) *MaintenanceWindowExecutionTaskIdentity {
 	s.TaskType = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *MaintenanceWindowExecutionTaskIdentity) SetTriggeredAlarms(v []*AlarmStateInformation) *MaintenanceWindowExecutionTaskIdentity {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -43149,6 +43596,9 @@ func (s *MaintenanceWindowTarget) SetWindowTargetId(v string) *MaintenanceWindow
 type MaintenanceWindowTask struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The specification for whether tasks should continue to run after the cutoff
 	// time specified in the maintenance windows is reached.
 	CutoffBehavior *string `type:"string" enum:"MaintenanceWindowTaskCutoffBehavior"`
@@ -43253,6 +43703,12 @@ func (s MaintenanceWindowTask) String() string {
 // value will be replaced with "sensitive".
 func (s MaintenanceWindowTask) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *MaintenanceWindowTask) SetAlarmConfiguration(v *AlarmConfiguration) *MaintenanceWindowTask {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -49342,6 +49798,9 @@ func (s *RegisterTargetWithMaintenanceWindowOutput) SetWindowTargetId(v string) 
 type RegisterTaskWithMaintenanceWindowInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// User-provided idempotency token.
 	ClientToken *string `min:"1" type:"string" idempotencyToken:"true"`
 
@@ -49523,6 +49982,11 @@ func (s *RegisterTaskWithMaintenanceWindowInput) Validate() error {
 	if s.WindowId != nil && len(*s.WindowId) < 20 {
 		invalidParams.Add(request.NewErrParamMinLen("WindowId", 20))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.LoggingInfo != nil {
 		if err := s.LoggingInfo.Validate(); err != nil {
 			invalidParams.AddNested("LoggingInfo", err.(request.ErrInvalidParams))
@@ -49548,6 +50012,12 @@ func (s *RegisterTaskWithMaintenanceWindowInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *RegisterTaskWithMaintenanceWindowInput) SetAlarmConfiguration(v *AlarmConfiguration) *RegisterTaskWithMaintenanceWindowInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetClientToken sets the ClientToken field's value.
@@ -51873,6 +52343,9 @@ func (s SendAutomationSignalOutput) GoString() string {
 type SendCommandInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Enables Amazon Web Services Systems Manager to send Run Command output to
 	// Amazon CloudWatch Logs. Run Command is a capability of Amazon Web Services
 	// Systems Manager.
@@ -51973,6 +52446,11 @@ type SendCommandInput struct {
 	// The ARN of the Identity and Access Management (IAM) service role to use to
 	// publish Amazon Simple Notification Service (Amazon SNS) notifications for
 	// Run Command commands.
+	//
+	// This role must provide the sns:Publish permission for your notification topic.
+	// For information about creating and using this service role, see Monitoring
+	// Systems Manager status changes using Amazon SNS notifications (https://docs.aws.amazon.com/systems-manager/latest/userguide/monitoring-sns-notifications.html)
+	// in the Amazon Web Services Systems Manager User Guide.
 	ServiceRoleArn *string `type:"string"`
 
 	// An array of search criteria that targets managed nodes using a Key,Value
@@ -52033,6 +52511,11 @@ func (s *SendCommandInput) Validate() error {
 	if s.TimeoutSeconds != nil && *s.TimeoutSeconds < 30 {
 		invalidParams.Add(request.NewErrParamMinValue("TimeoutSeconds", 30))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.CloudWatchOutputConfig != nil {
 		if err := s.CloudWatchOutputConfig.Validate(); err != nil {
 			invalidParams.AddNested("CloudWatchOutputConfig", err.(request.ErrInvalidParams))
@@ -52053,6 +52536,12 @@ func (s *SendCommandInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *SendCommandInput) SetAlarmConfiguration(v *AlarmConfiguration) *SendCommandInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCloudWatchOutputConfig sets the CloudWatchOutputConfig field's value.
@@ -52770,6 +53259,9 @@ func (s StartAssociationsOnceOutput) GoString() string {
 type StartAutomationExecutionInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// User-provided idempotency token. The token must be unique, is case insensitive,
 	// enforces the UUID format, and can't be reused.
 	ClientToken *string `min:"36" type:"string"`
@@ -52891,6 +53383,11 @@ func (s *StartAutomationExecutionInput) Validate() error {
 	if s.TargetParameterName != nil && len(*s.TargetParameterName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetParameterName", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.Tags != nil {
 		for i, v := range s.Tags {
 			if v == nil {
@@ -52926,6 +53423,12 @@ func (s *StartAutomationExecutionInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *StartAutomationExecutionInput) SetAlarmConfiguration(v *AlarmConfiguration) *StartAutomationExecutionInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetClientToken sets the ClientToken field's value.
@@ -53377,8 +53880,10 @@ type StartSessionOutput struct {
 	// session-id represents the ID of a Session Manager session, such as 1a2b3c4dEXAMPLE.
 	StreamUrl *string `type:"string"`
 
-	// An encrypted token value containing session and caller information. Used
-	// to authenticate the connection to the managed node.
+	// An encrypted token value containing session and caller information. This
+	// token is used to authenticate the connection to the managed node, and is
+	// valid only long enough to ensure the connection is successful. Never share
+	// your session's token.
 	TokenValue *string `type:"string"`
 }
 
@@ -55195,6 +55700,10 @@ func (s *UnsupportedPlatformType) RequestID() string {
 type UpdateAssociationInput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you update an association, the system runs it immediately
 	// after it is updated and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -55397,6 +55906,11 @@ func (s *UpdateAssociationInput) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
@@ -55427,6 +55941,12 @@ func (s *UpdateAssociationInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateAssociationInput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateAssociationInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -56610,6 +57130,9 @@ func (s *UpdateMaintenanceWindowTargetOutput) SetWindowTargetId(v string) *Updat
 type UpdateMaintenanceWindowTaskInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Indicates whether tasks should continue to run after the cutoff time specified
 	// in the maintenance windows is reached.
 	//
@@ -56796,6 +57319,11 @@ func (s *UpdateMaintenanceWindowTaskInput) Validate() error {
 	if s.WindowTaskId != nil && len(*s.WindowTaskId) < 36 {
 		invalidParams.Add(request.NewErrParamMinLen("WindowTaskId", 36))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.LoggingInfo != nil {
 		if err := s.LoggingInfo.Validate(); err != nil {
 			invalidParams.AddNested("LoggingInfo", err.(request.ErrInvalidParams))
@@ -56821,6 +57349,12 @@ func (s *UpdateMaintenanceWindowTaskInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateMaintenanceWindowTaskInput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateMaintenanceWindowTaskInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -56916,6 +57450,10 @@ func (s *UpdateMaintenanceWindowTaskInput) SetWindowTaskId(v string) *UpdateMain
 type UpdateMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The specification for whether tasks should continue to run after the cutoff
 	// time specified in the maintenance windows is reached.
 	CutoffBehavior *string `type:"string" enum:"MaintenanceWindowTaskCutoffBehavior"`
@@ -56997,6 +57535,12 @@ func (s UpdateMaintenanceWindowTaskOutput) String() string {
 // value will be replaced with "sensitive".
 func (s UpdateMaintenanceWindowTaskOutput) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateMaintenanceWindowTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateMaintenanceWindowTaskOutput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -58962,6 +59506,12 @@ const (
 
 	// DocumentTypeProblemAnalysisTemplate is a DocumentType enum value
 	DocumentTypeProblemAnalysisTemplate = "ProblemAnalysisTemplate"
+
+	// DocumentTypeCloudFormation is a DocumentType enum value
+	DocumentTypeCloudFormation = "CloudFormation"
+
+	// DocumentTypeConformancePackTemplate is a DocumentType enum value
+	DocumentTypeConformancePackTemplate = "ConformancePackTemplate"
 )
 
 // DocumentType_Values returns all elements of the DocumentType enum
@@ -58979,6 +59529,8 @@ func DocumentType_Values() []string {
 		DocumentTypeAutomationChangeTemplate,
 		DocumentTypeProblemAnalysis,
 		DocumentTypeProblemAnalysisTemplate,
+		DocumentTypeCloudFormation,
+		DocumentTypeConformancePackTemplate,
 	}
 }
 
@@ -58995,6 +59547,22 @@ func ExecutionMode_Values() []string {
 	return []string{
 		ExecutionModeAuto,
 		ExecutionModeInteractive,
+	}
+}
+
+const (
+	// ExternalAlarmStateUnknown is a ExternalAlarmState enum value
+	ExternalAlarmStateUnknown = "UNKNOWN"
+
+	// ExternalAlarmStateAlarm is a ExternalAlarmState enum value
+	ExternalAlarmStateAlarm = "ALARM"
+)
+
+// ExternalAlarmState_Values returns all elements of the ExternalAlarmState enum
+func ExternalAlarmState_Values() []string {
+	return []string{
+		ExternalAlarmStateUnknown,
+		ExternalAlarmStateAlarm,
 	}
 }
 
@@ -59336,6 +59904,9 @@ const (
 	// OperatingSystemAmazonLinux2 is a OperatingSystem enum value
 	OperatingSystemAmazonLinux2 = "AMAZON_LINUX_2"
 
+	// OperatingSystemAmazonLinux2022 is a OperatingSystem enum value
+	OperatingSystemAmazonLinux2022 = "AMAZON_LINUX_2022"
+
 	// OperatingSystemUbuntu is a OperatingSystem enum value
 	OperatingSystemUbuntu = "UBUNTU"
 
@@ -59370,6 +59941,7 @@ func OperatingSystem_Values() []string {
 		OperatingSystemWindows,
 		OperatingSystemAmazonLinux,
 		OperatingSystemAmazonLinux2,
+		OperatingSystemAmazonLinux2022,
 		OperatingSystemUbuntu,
 		OperatingSystemRedhatEnterpriseLinux,
 		OperatingSystemSuse,
@@ -60138,6 +60710,9 @@ const (
 
 	// ResourceTypeForTaggingAutomation is a ResourceTypeForTagging enum value
 	ResourceTypeForTaggingAutomation = "Automation"
+
+	// ResourceTypeForTaggingAssociation is a ResourceTypeForTagging enum value
+	ResourceTypeForTaggingAssociation = "Association"
 )
 
 // ResourceTypeForTagging_Values returns all elements of the ResourceTypeForTagging enum
@@ -60151,6 +60726,7 @@ func ResourceTypeForTagging_Values() []string {
 		ResourceTypeForTaggingOpsItem,
 		ResourceTypeForTaggingOpsMetadata,
 		ResourceTypeForTaggingAutomation,
+		ResourceTypeForTaggingAssociation,
 	}
 }
 
