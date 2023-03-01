@@ -641,6 +641,9 @@ func (c *SSM) CreateAssociationRequest(input *CreateAssociationInput) (req *requ
 //   - InvalidTargetMaps
 //     TargetMap parameter isn't valid.
 //
+//   - InvalidTag
+//     The specified tag key or value isn't valid.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/CreateAssociation
 func (c *SSM) CreateAssociation(input *CreateAssociationInput) (*CreateAssociationOutput, error) {
 	req, out := c.CreateAssociationRequest(input)
@@ -1072,6 +1075,11 @@ func (c *SSM) CreateOpsItemRequest(input *CreateOpsItemInput) (req *request.Requ
 //   - OpsItemInvalidParameterException
 //     A specified parameter argument isn't valid. Verify the available arguments
 //     and try again.
+//
+//   - OpsItemAccessDeniedException
+//     You don't have permission to view OpsItems in the specified account. Verify
+//     that your account is configured either as a Systems Manager delegated administrator
+//     or that you are logged into the Organizations management account.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/CreateOpsItem
 func (c *SSM) CreateOpsItem(input *CreateOpsItemInput) (*CreateOpsItemOutput, error) {
@@ -2290,6 +2298,100 @@ func (c *SSM) DeleteResourceDataSync(input *DeleteResourceDataSyncInput) (*Delet
 // for more information on using Contexts.
 func (c *SSM) DeleteResourceDataSyncWithContext(ctx aws.Context, input *DeleteResourceDataSyncInput, opts ...request.Option) (*DeleteResourceDataSyncOutput, error) {
 	req, out := c.DeleteResourceDataSyncRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteResourcePolicy = "DeleteResourcePolicy"
+
+// DeleteResourcePolicyRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteResourcePolicy operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteResourcePolicy for more information on using the DeleteResourcePolicy
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DeleteResourcePolicyRequest method.
+//	req, resp := client.DeleteResourcePolicyRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/DeleteResourcePolicy
+func (c *SSM) DeleteResourcePolicyRequest(input *DeleteResourcePolicyInput) (req *request.Request, output *DeleteResourcePolicyOutput) {
+	op := &request.Operation{
+		Name:       opDeleteResourcePolicy,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteResourcePolicyInput{}
+	}
+
+	output = &DeleteResourcePolicyOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DeleteResourcePolicy API operation for Amazon Simple Systems Manager (SSM).
+//
+// Deletes a Systems Manager resource policy. A resource policy helps you to
+// define the IAM entity (for example, an Amazon Web Services account) that
+// can manage your Systems Manager resources. Currently, OpsItemGroup is the
+// only resource that supports Systems Manager resource policies. The resource
+// policy for OpsItemGroup enables Amazon Web Services accounts to view and
+// interact with OpsCenter operational work items (OpsItems).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation DeleteResourcePolicy for usage and error information.
+//
+// Returned Error Types:
+//
+//   - InternalServerError
+//     An error occurred on the server side.
+//
+//   - ResourcePolicyInvalidParameterException
+//     One or more parameters specified for the call aren't valid. Verify the parameters
+//     and their values and try again.
+//
+//   - ResourcePolicyConflictException
+//     The hash provided in the call doesn't match the stored hash. This exception
+//     is thrown when trying to update an obsolete policy version or when multiple
+//     requests to update a policy are sent.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/DeleteResourcePolicy
+func (c *SSM) DeleteResourcePolicy(input *DeleteResourcePolicyInput) (*DeleteResourcePolicyOutput, error) {
+	req, out := c.DeleteResourcePolicyRequest(input)
+	return out, req.Send()
+}
+
+// DeleteResourcePolicyWithContext is the same as DeleteResourcePolicy with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteResourcePolicy for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) DeleteResourcePolicyWithContext(ctx aws.Context, input *DeleteResourcePolicyInput, opts ...request.Option) (*DeleteResourcePolicyOutput, error) {
+	req, out := c.DeleteResourcePolicyRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -8683,6 +8785,11 @@ func (c *SSM) GetOpsItemRequest(input *GetOpsItemInput) (req *request.Request, o
 //   - OpsItemNotFoundException
 //     The specified OpsItem ID doesn't exist. Verify the ID and try again.
 //
+//   - OpsItemAccessDeniedException
+//     You don't have permission to view OpsItems in the specified account. Verify
+//     that your account is configured either as a Systems Manager delegated administrator
+//     or that you are logged into the Organizations management account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/GetOpsItem
 func (c *SSM) GetOpsItem(input *GetOpsItemInput) (*GetOpsItemOutput, error) {
 	req, out := c.GetOpsItemRequest(input)
@@ -9603,6 +9710,146 @@ func (c *SSM) GetPatchBaselineForPatchGroupWithContext(ctx aws.Context, input *G
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
+}
+
+const opGetResourcePolicies = "GetResourcePolicies"
+
+// GetResourcePoliciesRequest generates a "aws/request.Request" representing the
+// client's request for the GetResourcePolicies operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See GetResourcePolicies for more information on using the GetResourcePolicies
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the GetResourcePoliciesRequest method.
+//	req, resp := client.GetResourcePoliciesRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/GetResourcePolicies
+func (c *SSM) GetResourcePoliciesRequest(input *GetResourcePoliciesInput) (req *request.Request, output *GetResourcePoliciesOutput) {
+	op := &request.Operation{
+		Name:       opGetResourcePolicies,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &GetResourcePoliciesInput{}
+	}
+
+	output = &GetResourcePoliciesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// GetResourcePolicies API operation for Amazon Simple Systems Manager (SSM).
+//
+// Returns an array of the Policy object.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation GetResourcePolicies for usage and error information.
+//
+// Returned Error Types:
+//
+//   - InternalServerError
+//     An error occurred on the server side.
+//
+//   - ResourcePolicyInvalidParameterException
+//     One or more parameters specified for the call aren't valid. Verify the parameters
+//     and their values and try again.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/GetResourcePolicies
+func (c *SSM) GetResourcePolicies(input *GetResourcePoliciesInput) (*GetResourcePoliciesOutput, error) {
+	req, out := c.GetResourcePoliciesRequest(input)
+	return out, req.Send()
+}
+
+// GetResourcePoliciesWithContext is the same as GetResourcePolicies with the addition of
+// the ability to pass a context and additional request options.
+//
+// See GetResourcePolicies for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) GetResourcePoliciesWithContext(ctx aws.Context, input *GetResourcePoliciesInput, opts ...request.Option) (*GetResourcePoliciesOutput, error) {
+	req, out := c.GetResourcePoliciesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// GetResourcePoliciesPages iterates over the pages of a GetResourcePolicies operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See GetResourcePolicies method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//	// Example iterating over at most 3 pages of a GetResourcePolicies operation.
+//	pageNum := 0
+//	err := client.GetResourcePoliciesPages(params,
+//	    func(page *ssm.GetResourcePoliciesOutput, lastPage bool) bool {
+//	        pageNum++
+//	        fmt.Println(page)
+//	        return pageNum <= 3
+//	    })
+func (c *SSM) GetResourcePoliciesPages(input *GetResourcePoliciesInput, fn func(*GetResourcePoliciesOutput, bool) bool) error {
+	return c.GetResourcePoliciesPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// GetResourcePoliciesPagesWithContext same as GetResourcePoliciesPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) GetResourcePoliciesPagesWithContext(ctx aws.Context, input *GetResourcePoliciesInput, fn func(*GetResourcePoliciesOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *GetResourcePoliciesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.GetResourcePoliciesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*GetResourcePoliciesOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
 }
 
 const opGetServiceSetting = "GetServiceSetting"
@@ -12071,8 +12318,8 @@ func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInp
 //
 // Shares a Amazon Web Services Systems Manager document (SSM document)publicly
 // or privately. If you share a document privately, you must specify the Amazon
-// Web Services user account IDs for those people who can use the document.
-// If you share a document publicly, you must specify All as the account ID.
+// Web Services user IDs for those people who can use the document. If you share
+// a document publicly, you must specify All as the account ID.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -12094,10 +12341,15 @@ func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInp
 //     type.
 //
 //   - DocumentPermissionLimit
-//     The document can't be shared with more Amazon Web Services user accounts.
-//     You can share a document with a maximum of 20 accounts. You can publicly
-//     share up to five documents. If you need to increase this limit, contact Amazon
-//     Web Services Support.
+//     The document can't be shared with more Amazon Web Services accounts. You
+//     can specify a maximum of 20 accounts per API operation to share a private
+//     document.
+//
+//     By default, you can share a private document with a maximum of 1,000 accounts
+//     and publicly share up to five documents.
+//
+//     If you need to increase the quota for privately or publicly shared Systems
+//     Manager documents, contact Amazon Web Services Support.
 //
 //   - DocumentLimitExceeded
 //     You can have at most 500 active SSM documents.
@@ -12541,6 +12793,104 @@ func (c *SSM) PutParameter(input *PutParameterInput) (*PutParameterOutput, error
 // for more information on using Contexts.
 func (c *SSM) PutParameterWithContext(ctx aws.Context, input *PutParameterInput, opts ...request.Option) (*PutParameterOutput, error) {
 	req, out := c.PutParameterRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opPutResourcePolicy = "PutResourcePolicy"
+
+// PutResourcePolicyRequest generates a "aws/request.Request" representing the
+// client's request for the PutResourcePolicy operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See PutResourcePolicy for more information on using the PutResourcePolicy
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the PutResourcePolicyRequest method.
+//	req, resp := client.PutResourcePolicyRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/PutResourcePolicy
+func (c *SSM) PutResourcePolicyRequest(input *PutResourcePolicyInput) (req *request.Request, output *PutResourcePolicyOutput) {
+	op := &request.Operation{
+		Name:       opPutResourcePolicy,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &PutResourcePolicyInput{}
+	}
+
+	output = &PutResourcePolicyOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// PutResourcePolicy API operation for Amazon Simple Systems Manager (SSM).
+//
+// Creates or updates a Systems Manager resource policy. A resource policy helps
+// you to define the IAM entity (for example, an Amazon Web Services account)
+// that can manage your Systems Manager resources. Currently, OpsItemGroup is
+// the only resource that supports Systems Manager resource policies. The resource
+// policy for OpsItemGroup enables Amazon Web Services accounts to view and
+// interact with OpsCenter operational work items (OpsItems).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Simple Systems Manager (SSM)'s
+// API operation PutResourcePolicy for usage and error information.
+//
+// Returned Error Types:
+//
+//   - InternalServerError
+//     An error occurred on the server side.
+//
+//   - ResourcePolicyInvalidParameterException
+//     One or more parameters specified for the call aren't valid. Verify the parameters
+//     and their values and try again.
+//
+//   - ResourcePolicyLimitExceededException
+//     The PutResourcePolicy API action enforces two limits. A policy can't be greater
+//     than 1024 bytes in size. And only one policy can be attached to OpsItemGroup.
+//     Verify these limits and try again.
+//
+//   - ResourcePolicyConflictException
+//     The hash provided in the call doesn't match the stored hash. This exception
+//     is thrown when trying to update an obsolete policy version or when multiple
+//     requests to update a policy are sent.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/PutResourcePolicy
+func (c *SSM) PutResourcePolicy(input *PutResourcePolicyInput) (*PutResourcePolicyOutput, error) {
+	req, out := c.PutResourcePolicyRequest(input)
+	return out, req.Send()
+}
+
+// PutResourcePolicyWithContext is the same as PutResourcePolicy with the addition of
+// the ability to pass a context and additional request options.
+//
+// See PutResourcePolicy for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *SSM) PutResourcePolicyWithContext(ctx aws.Context, input *PutResourcePolicyInput, opts ...request.Option) (*PutResourcePolicyOutput, error) {
+	req, out := c.PutResourcePolicyRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -14155,13 +14505,12 @@ func (c *SSM) UpdateAssociationRequest(input *UpdateAssociationInput) (req *requ
 // that you call the DescribeAssociation API operation and make a note of all
 // optional parameters required for your UpdateAssociation call.
 //
-// In order to call this API operation, your Identity and Access Management
-// (IAM) user account, group, or role must be configured with permission to
-// call the DescribeAssociation API operation. If you don't have permission
-// to call DescribeAssociation, then you receive the following error: An error
-// occurred (AccessDeniedException) when calling the UpdateAssociation operation:
-// User: <user_arn> isn't authorized to perform: ssm:DescribeAssociation on
-// resource: <resource_arn>
+// In order to call this API operation, a user, group, or role must be granted
+// permission to call the DescribeAssociation API operation. If you don't have
+// permission to call DescribeAssociation, then you receive the following error:
+// An error occurred (AccessDeniedException) when calling the UpdateAssociation
+// operation: User: <user_arn> isn't authorized to perform: ssm:DescribeAssociation
+// on resource: <resource_arn>
 //
 // When you update an association, the association immediately runs against
 // the specified targets. You can add the ApplyOnlyAtCronInterval parameter
@@ -15146,6 +15495,11 @@ func (c *SSM) UpdateOpsItemRequest(input *UpdateOpsItemInput) (req *request.Requ
 //     A specified parameter argument isn't valid. Verify the available arguments
 //     and try again.
 //
+//   - OpsItemAccessDeniedException
+//     You don't have permission to view OpsItems in the specified account. Verify
+//     that your account is configured either as a Systems Manager delegated administrator
+//     or that you are logged into the Organizations management account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/ssm-2014-11-06/UpdateOpsItem
 func (c *SSM) UpdateOpsItem(input *UpdateOpsItemInput) (*UpdateOpsItemOutput, error) {
 	req, out := c.UpdateOpsItemRequest(input)
@@ -15846,6 +16200,175 @@ func (s AddTagsToResourceOutput) GoString() string {
 	return s.String()
 }
 
+// A CloudWatch alarm you apply to an automation or command.
+type Alarm struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your CloudWatch alarm.
+	//
+	// Name is a required field
+	Name *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Alarm) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Alarm) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Alarm) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Alarm"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetName sets the Name field's value.
+func (s *Alarm) SetName(v string) *Alarm {
+	s.Name = &v
+	return s
+}
+
+// The details for the CloudWatch alarm you want to apply to an automation or
+// command.
+type AlarmConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the CloudWatch alarm specified in the configuration.
+	//
+	// Alarms is a required field
+	Alarms []*Alarm `min:"1" type:"list" required:"true"`
+
+	// When this value is true, your automation or command continues to run in cases
+	// where we can’t retrieve alarm status information from CloudWatch. In cases
+	// where we successfully retrieve an alarm status of OK or INSUFFICIENT_DATA,
+	// the automation or command continues to run, regardless of this value. Default
+	// is false.
+	IgnorePollAlarmFailure *bool `type:"boolean"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmConfiguration) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AlarmConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AlarmConfiguration"}
+	if s.Alarms == nil {
+		invalidParams.Add(request.NewErrParamRequired("Alarms"))
+	}
+	if s.Alarms != nil && len(s.Alarms) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Alarms", 1))
+	}
+	if s.Alarms != nil {
+		for i, v := range s.Alarms {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Alarms", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAlarms sets the Alarms field's value.
+func (s *AlarmConfiguration) SetAlarms(v []*Alarm) *AlarmConfiguration {
+	s.Alarms = v
+	return s
+}
+
+// SetIgnorePollAlarmFailure sets the IgnorePollAlarmFailure field's value.
+func (s *AlarmConfiguration) SetIgnorePollAlarmFailure(v bool) *AlarmConfiguration {
+	s.IgnorePollAlarmFailure = &v
+	return s
+}
+
+// The details about the state of your CloudWatch alarm.
+type AlarmStateInformation struct {
+	_ struct{} `type:"structure"`
+
+	// The name of your CloudWatch alarm.
+	//
+	// Name is a required field
+	Name *string `min:"1" type:"string" required:"true"`
+
+	// The state of your CloudWatch alarm.
+	//
+	// State is a required field
+	State *string `type:"string" required:"true" enum:"ExternalAlarmState"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmStateInformation) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s AlarmStateInformation) GoString() string {
+	return s.String()
+}
+
+// SetName sets the Name field's value.
+func (s *AlarmStateInformation) SetName(v string) *AlarmStateInformation {
+	s.Name = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *AlarmStateInformation) SetState(v string) *AlarmStateInformation {
+	s.State = &v
+	return s
+}
+
 // Error returned if an attempt is made to register a patch group with a patch
 // baseline that is already registered with a different patch baseline.
 type AlreadyExistsException struct {
@@ -16318,6 +16841,10 @@ func (s *AssociationAlreadyExists) RequestID() string {
 type AssociationDescription struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you create a new associations, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -16441,6 +16968,9 @@ type AssociationDescription struct {
 
 	// The managed nodes targeted by the request.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked during the association.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -16459,6 +16989,12 @@ func (s AssociationDescription) String() string {
 // value will be replaced with "sensitive".
 func (s AssociationDescription) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AssociationDescription) SetAlarmConfiguration(v *AlarmConfiguration) *AssociationDescription {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -16617,6 +17153,12 @@ func (s *AssociationDescription) SetTargets(v []*Target) *AssociationDescription
 	return s
 }
 
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AssociationDescription) SetTriggeredAlarms(v []*AlarmStateInformation) *AssociationDescription {
+	s.TriggeredAlarms = v
+	return s
+}
+
 // The specified association doesn't exist.
 type AssociationDoesNotExist struct {
 	_            struct{}                  `type:"structure"`
@@ -16685,6 +17227,10 @@ func (s *AssociationDoesNotExist) RequestID() string {
 type AssociationExecution struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The association ID.
 	AssociationId *string `type:"string"`
 
@@ -16709,6 +17255,9 @@ type AssociationExecution struct {
 
 	// The status of the association execution.
 	Status *string `type:"string"`
+
+	// The CloudWatch alarms that were invoked by the association.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -16727,6 +17276,12 @@ func (s AssociationExecution) String() string {
 // value will be replaced with "sensitive".
 func (s AssociationExecution) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AssociationExecution) SetAlarmConfiguration(v *AlarmConfiguration) *AssociationExecution {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -16774,6 +17329,12 @@ func (s *AssociationExecution) SetResourceCountByStatus(v string) *AssociationEx
 // SetStatus sets the Status field's value.
 func (s *AssociationExecution) SetStatus(v string) *AssociationExecution {
 	s.Status = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AssociationExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *AssociationExecution {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -18043,6 +18604,9 @@ func (s *AutomationDefinitionVersionNotFoundException) RequestID() string {
 type AutomationExecution struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The ID of a State Manager association used in the Automation operation.
 	AssociationId *string `type:"string"`
 
@@ -18148,6 +18712,9 @@ type AutomationExecution struct {
 
 	// The specified targets.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -18166,6 +18733,12 @@ func (s AutomationExecution) String() string {
 // value will be replaced with "sensitive".
 func (s AutomationExecution) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AutomationExecution) SetAlarmConfiguration(v *AlarmConfiguration) *AutomationExecution {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -18354,6 +18927,12 @@ func (s *AutomationExecution) SetTargets(v []*Target) *AutomationExecution {
 	return s
 }
 
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AutomationExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *AutomationExecution {
+	s.TriggeredAlarms = v
+	return s
+}
+
 // A filter used to match specific automation executions. This is used to limit
 // the scope of Automation execution information returned.
 type AutomationExecutionFilter struct {
@@ -18489,6 +19068,9 @@ func (s *AutomationExecutionLimitExceededException) RequestID() string {
 type AutomationExecutionMetadata struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The ID of a State Manager association used in the Automation operation.
 	AssociationId *string `type:"string"`
 
@@ -18584,6 +19166,9 @@ type AutomationExecutionMetadata struct {
 
 	// The targets defined by the user when starting the automation.
 	Targets []*Target `type:"list"`
+
+	// The CloudWatch alarm that was invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -18602,6 +19187,12 @@ func (s AutomationExecutionMetadata) String() string {
 // value will be replaced with "sensitive".
 func (s AutomationExecutionMetadata) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *AutomationExecutionMetadata) SetAlarmConfiguration(v *AlarmConfiguration) *AutomationExecutionMetadata {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetAssociationId sets the AssociationId field's value.
@@ -18769,6 +19360,12 @@ func (s *AutomationExecutionMetadata) SetTargetParameterName(v string) *Automati
 // SetTargets sets the Targets field's value.
 func (s *AutomationExecutionMetadata) SetTargets(v []*Target) *AutomationExecutionMetadata {
 	s.Targets = v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *AutomationExecutionMetadata) SetTriggeredAlarms(v []*AlarmStateInformation) *AutomationExecutionMetadata {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -19280,6 +19877,9 @@ func (s *CloudWatchOutputConfig) SetCloudWatchOutputEnabled(v bool) *CloudWatchO
 type Command struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Amazon CloudWatch Logs information where you want Amazon Web Services Systems
 	// Manager to send the command output.
 	CloudWatchOutputConfig *CloudWatchOutputConfig `type:"structure"`
@@ -19418,6 +20018,9 @@ type Command struct {
 
 	// The TimeoutSeconds value specified for a command.
 	TimeoutSeconds *int64 `min:"30" type:"integer"`
+
+	// The CloudWatch alarm that was invoked by the command.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
 }
 
 // String returns the string representation.
@@ -19436,6 +20039,12 @@ func (s Command) String() string {
 // value will be replaced with "sensitive".
 func (s Command) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *Command) SetAlarmConfiguration(v *AlarmConfiguration) *Command {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCloudWatchOutputConfig sets the CloudWatchOutputConfig field's value.
@@ -19579,6 +20188,12 @@ func (s *Command) SetTargets(v []*Target) *Command {
 // SetTimeoutSeconds sets the TimeoutSeconds field's value.
 func (s *Command) SetTimeoutSeconds(v int64) *Command {
 	s.TimeoutSeconds = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *Command) SetTriggeredAlarms(v []*AlarmStateInformation) *Command {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -20646,6 +21261,9 @@ type CreateActivationInput struct {
 	// (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-service-role.html)
 	// in the Amazon Web Services Systems Manager User Guide.
 	//
+	// You can't specify an IAM service-linked role for this parameter. You must
+	// create a unique role.
+	//
 	// IamRole is a required field
 	IamRole *string `type:"string" required:"true"`
 
@@ -20923,6 +21541,10 @@ func (s *CreateAssociationBatchOutput) SetSuccessful(v []*AssociationDescription
 type CreateAssociationBatchRequestEntry struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you create a new associations, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -21093,6 +21715,11 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
@@ -21123,6 +21750,12 @@ func (s *CreateAssociationBatchRequestEntry) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *CreateAssociationBatchRequestEntry) SetAlarmConfiguration(v *AlarmConfiguration) *CreateAssociationBatchRequestEntry {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -21236,6 +21869,10 @@ func (s *CreateAssociationBatchRequestEntry) SetTargets(v []*Target) *CreateAsso
 type CreateAssociationInput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you create a new association, the system runs it immediately
 	// after it is created and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -21312,7 +21949,7 @@ type CreateAssociationInput struct {
 	// the configuration information for the managed node.
 	//
 	// You can specify Amazon Web Services-predefined documents, documents you created,
-	// or a document that is shared with you from another account.
+	// or a document that is shared with you from another Amazon Web Services account.
 	//
 	// For Systems Manager documents (SSM documents) that are shared with you from
 	// other Amazon Web Services accounts, you must specify the complete SSM document
@@ -21370,6 +22007,13 @@ type CreateAssociationInput struct {
 	//
 	// By default, all associations use AUTO mode.
 	SyncCompliance *string `type:"string" enum:"AssociationSyncCompliance"`
+
+	// Adds or overwrites one or more tags for a State Manager association. Tags
+	// are metadata that you can assign to your Amazon Web Services resources. Tags
+	// enable you to categorize your resources in different ways, for example, by
+	// purpose, owner, or environment. Each tag consists of a key and an optional
+	// value, both of which you define.
+	Tags []*Tag `type:"list"`
 
 	// A location is a combination of Amazon Web Services Regions and Amazon Web
 	// Services accounts where you want to run the association. Use this action
@@ -21432,9 +22076,24 @@ func (s *CreateAssociationInput) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
 		}
 	}
 	if s.TargetLocations != nil {
@@ -21462,6 +22121,12 @@ func (s *CreateAssociationInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *CreateAssociationInput) SetAlarmConfiguration(v *AlarmConfiguration) *CreateAssociationInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -21554,6 +22219,12 @@ func (s *CreateAssociationInput) SetSyncCompliance(v string) *CreateAssociationI
 	return s
 }
 
+// SetTags sets the Tags field's value.
+func (s *CreateAssociationInput) SetTags(v []*Tag) *CreateAssociationInput {
+	s.Tags = v
+	return s
+}
+
 // SetTargetLocations sets the TargetLocations field's value.
 func (s *CreateAssociationInput) SetTargetLocations(v []*TargetLocation) *CreateAssociationInput {
 	s.TargetLocations = v
@@ -21609,9 +22280,11 @@ type CreateDocumentInput struct {
 	// A list of key-value pairs that describe attachments to a version of a document.
 	Attachments []*AttachmentsSource `type:"list"`
 
-	// The content for the new SSM document in JSON or YAML format. We recommend
-	// storing the contents for your new document in an external JSON or YAML file
-	// and referencing the file in a command.
+	// The content for the new SSM document in JSON or YAML format. The content
+	// of the document must not exceed 64KB. This quota also includes the content
+	// specified for input parameters at runtime. We recommend storing the contents
+	// for your new document in an external JSON or YAML file and referencing the
+	// file in a command.
 	//
 	// For examples, see the following topics in the Amazon Web Services Systems
 	// Manager User Guide.
@@ -21645,7 +22318,7 @@ type CreateDocumentInput struct {
 	// You can't use the following strings as document name prefixes. These are
 	// reserved by Amazon Web Services for use as document name prefixes:
 	//
-	//    * aws-
+	//    * aws
 	//
 	//    * amazon
 	//
@@ -22120,6 +22793,13 @@ func (s *CreateMaintenanceWindowOutput) SetWindowId(v string) *CreateMaintenance
 type CreateOpsItemInput struct {
 	_ struct{} `type:"structure"`
 
+	// The target Amazon Web Services account where you want to create an OpsItem.
+	// To make this call, your account must be configured to work with OpsItems
+	// across accounts. For more information, see Setting up OpsCenter to work with
+	// OpsItems across accounts (https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-OpsCenter-multiple-accounts.html)
+	// in the Amazon Web Services Systems Manager User Guide.
+	AccountId *string `type:"string"`
+
 	// The time a runbook workflow ended. Currently reported only for the OpsItem
 	// type /aws/changerequest.
 	ActualEndTime *time.Time `type:"timestamp"`
@@ -22163,8 +22843,17 @@ type CreateOpsItemInput struct {
 	// in the Amazon Web Services Systems Manager User Guide.
 	OperationalData map[string]*OpsItemDataValue `type:"map"`
 
-	// The type of OpsItem to create. Currently, the only valid values are /aws/changerequest
-	// and /aws/issue.
+	// The type of OpsItem to create. Systems Manager supports the following types
+	// of OpsItems:
+	//
+	//    * /aws/issue This type of OpsItem is used for default OpsItems created
+	//    by OpsCenter.
+	//
+	//    * /aws/changerequest This type of OpsItem is used by Change Manager for
+	//    reviewing and approving or rejecting change requests.
+	//
+	//    * /aws/insights This type of OpsItem is used by OpsCenter for aggregating
+	//    and reporting on duplicate OpsItems.
 	OpsItemType *string `type:"string"`
 
 	// The time specified in a change request for a runbook workflow to end. Currently
@@ -22289,6 +22978,12 @@ func (s *CreateOpsItemInput) Validate() error {
 	return nil
 }
 
+// SetAccountId sets the AccountId field's value.
+func (s *CreateOpsItemInput) SetAccountId(v string) *CreateOpsItemInput {
+	s.AccountId = &v
+	return s
+}
+
 // SetActualEndTime sets the ActualEndTime field's value.
 func (s *CreateOpsItemInput) SetActualEndTime(v time.Time) *CreateOpsItemInput {
 	s.ActualEndTime = &v
@@ -22382,6 +23077,9 @@ func (s *CreateOpsItemInput) SetTitle(v string) *CreateOpsItemInput {
 type CreateOpsItemOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The OpsItem Amazon Resource Name (ARN).
+	OpsItemArn *string `min:"20" type:"string"`
+
 	// The ID of the OpsItem.
 	OpsItemId *string `type:"string"`
 }
@@ -22402,6 +23100,12 @@ func (s CreateOpsItemOutput) String() string {
 // value will be replaced with "sensitive".
 func (s CreateOpsItemOutput) GoString() string {
 	return s.String()
+}
+
+// SetOpsItemArn sets the OpsItemArn field's value.
+func (s *CreateOpsItemOutput) SetOpsItemArn(v string) *CreateOpsItemOutput {
+	s.OpsItemArn = &v
+	return s
 }
 
 // SetOpsItemId sets the OpsItemId field's value.
@@ -23854,6 +24558,106 @@ func (s DeleteResourceDataSyncOutput) String() string {
 // be included in the string output. The member name will be present, but the
 // value will be replaced with "sensitive".
 func (s DeleteResourceDataSyncOutput) GoString() string {
+	return s.String()
+}
+
+type DeleteResourcePolicyInput struct {
+	_ struct{} `type:"structure"`
+
+	// ID of the current policy version. The hash helps to prevent multiple calls
+	// from attempting to overwrite a policy.
+	//
+	// PolicyHash is a required field
+	PolicyHash *string `type:"string" required:"true"`
+
+	// The policy ID.
+	//
+	// PolicyId is a required field
+	PolicyId *string `type:"string" required:"true"`
+
+	// Amazon Resource Name (ARN) of the resource to which the policies are attached.
+	//
+	// ResourceArn is a required field
+	ResourceArn *string `min:"20" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteResourcePolicyInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteResourcePolicyInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteResourcePolicyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteResourcePolicyInput"}
+	if s.PolicyHash == nil {
+		invalidParams.Add(request.NewErrParamRequired("PolicyHash"))
+	}
+	if s.PolicyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("PolicyId"))
+	}
+	if s.ResourceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceArn"))
+	}
+	if s.ResourceArn != nil && len(*s.ResourceArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceArn", 20))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetPolicyHash sets the PolicyHash field's value.
+func (s *DeleteResourcePolicyInput) SetPolicyHash(v string) *DeleteResourcePolicyInput {
+	s.PolicyHash = &v
+	return s
+}
+
+// SetPolicyId sets the PolicyId field's value.
+func (s *DeleteResourcePolicyInput) SetPolicyId(v string) *DeleteResourcePolicyInput {
+	s.PolicyId = &v
+	return s
+}
+
+// SetResourceArn sets the ResourceArn field's value.
+func (s *DeleteResourcePolicyInput) SetResourceArn(v string) *DeleteResourcePolicyInput {
+	s.ResourceArn = &v
+	return s
+}
+
+type DeleteResourcePolicyOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteResourcePolicyOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteResourcePolicyOutput) GoString() string {
 	return s.String()
 }
 
@@ -25793,8 +26597,8 @@ type DescribeInstanceInformationInput struct {
 	_ struct{} `type:"structure"`
 
 	// One or more filters. Use a filter to return a more specific list of managed
-	// nodes. You can filter based on tags applied to EC2 instances. Use this Filters
-	// data type instead of InstanceInformationFilterList, which is deprecated.
+	// nodes. You can filter based on tags applied to your managed nodes. Use this
+	// Filters data type instead of InstanceInformationFilterList, which is deprecated.
 	Filters []*InstanceInformationStringFilter `type:"list"`
 
 	// This is a legacy method. We recommend that you don't use this method. Instead,
@@ -28801,7 +29605,7 @@ type DocumentDescription struct {
 	// The name of the SSM document.
 	Name *string `type:"string"`
 
-	// The Amazon Web Services user account that created the document.
+	// The Amazon Web Services user that created the document.
 	Owner *string `type:"string"`
 
 	// A description of the parameters for a document.
@@ -29140,7 +29944,7 @@ type DocumentIdentifier struct {
 	// The name of the SSM document.
 	Name *string `type:"string"`
 
-	// The Amazon Web Services user account that created the document.
+	// The Amazon Web Services user that created the document.
 	Owner *string `type:"string"`
 
 	// The operating system platform.
@@ -29496,7 +30300,7 @@ func (s *DocumentMetadataResponseInfo) SetReviewerResponse(v []*DocumentReviewer
 	return s
 }
 
-// Parameters specified in a System Manager document that run on the server
+// Parameters specified in a Systems Manager document that run on the server
 // when the command is run.
 type DocumentParameter struct {
 	_ struct{} `type:"structure"`
@@ -29558,10 +30362,15 @@ func (s *DocumentParameter) SetType(v string) *DocumentParameter {
 	return s
 }
 
-// The document can't be shared with more Amazon Web Services user accounts.
-// You can share a document with a maximum of 20 accounts. You can publicly
-// share up to five documents. If you need to increase this limit, contact Amazon
-// Web Services Support.
+// The document can't be shared with more Amazon Web Services accounts. You
+// can specify a maximum of 20 accounts per API operation to share a private
+// document.
+//
+// By default, you can share a private document with a maximum of 1,000 accounts
+// and publicly share up to five documents.
+//
+// If you need to increase the quota for privately or publicly shared Systems
+// Manager documents, contact Amazon Web Services Support.
 type DocumentPermissionLimit struct {
 	_            struct{}                  `type:"structure"`
 	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
@@ -29635,8 +30444,16 @@ type DocumentRequires struct {
 	// Name is a required field
 	Name *string `type:"string" required:"true"`
 
+	// The document type of the required SSM document.
+	RequireType *string `type:"string"`
+
 	// The document version required by the current document.
 	Version *string `type:"string"`
+
+	// An optional field specifying the version of the artifact associated with
+	// the document. For example, "Release 12, Update 6". This value is unique across
+	// all versions of a document, and can't be changed.
+	VersionName *string `type:"string"`
 }
 
 // String returns the string representation.
@@ -29676,9 +30493,21 @@ func (s *DocumentRequires) SetName(v string) *DocumentRequires {
 	return s
 }
 
+// SetRequireType sets the RequireType field's value.
+func (s *DocumentRequires) SetRequireType(v string) *DocumentRequires {
+	s.RequireType = &v
+	return s
+}
+
 // SetVersion sets the Version field's value.
 func (s *DocumentRequires) SetVersion(v string) *DocumentRequires {
 	s.Version = &v
+	return s
+}
+
+// SetVersionName sets the VersionName field's value.
+func (s *DocumentRequires) SetVersionName(v string) *DocumentRequires {
+	s.VersionName = &v
 	return s
 }
 
@@ -32321,6 +33150,10 @@ func (s *GetMaintenanceWindowExecutionTaskInvocationOutput) SetWindowTargetId(v 
 type GetMaintenanceWindowExecutionTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The time the task execution completed.
 	EndTime *time.Time `type:"timestamp"`
 
@@ -32371,6 +33204,9 @@ type GetMaintenanceWindowExecutionTaskOutput struct {
 	// String and GoString methods.
 	TaskParameters []map[string]*MaintenanceWindowTaskParameterValueExpression `type:"list" sensitive:"true"`
 
+	// The CloudWatch alarms that were invoked by the maintenance window task.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// The type of task that was run.
 	Type *string `type:"string" enum:"MaintenanceWindowTaskType"`
 
@@ -32394,6 +33230,12 @@ func (s GetMaintenanceWindowExecutionTaskOutput) String() string {
 // value will be replaced with "sensitive".
 func (s GetMaintenanceWindowExecutionTaskOutput) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *GetMaintenanceWindowExecutionTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *GetMaintenanceWindowExecutionTaskOutput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetEndTime sets the EndTime field's value.
@@ -32459,6 +33301,12 @@ func (s *GetMaintenanceWindowExecutionTaskOutput) SetTaskExecutionId(v string) *
 // SetTaskParameters sets the TaskParameters field's value.
 func (s *GetMaintenanceWindowExecutionTaskOutput) SetTaskParameters(v []map[string]*MaintenanceWindowTaskParameterValueExpression) *GetMaintenanceWindowExecutionTaskOutput {
 	s.TaskParameters = v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *GetMaintenanceWindowExecutionTaskOutput) SetTriggeredAlarms(v []*AlarmStateInformation) *GetMaintenanceWindowExecutionTaskOutput {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -32764,6 +33612,10 @@ func (s *GetMaintenanceWindowTaskInput) SetWindowTaskId(v string) *GetMaintenanc
 type GetMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The action to take on tasks when the maintenance window cutoff time is reached.
 	// CONTINUE_TASK means that tasks continue to run. For Automation, Lambda, Step
 	// Functions tasks, CANCEL_TASK means that currently running task invocations
@@ -32869,6 +33721,12 @@ func (s GetMaintenanceWindowTaskOutput) GoString() string {
 	return s.String()
 }
 
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *GetMaintenanceWindowTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *GetMaintenanceWindowTaskOutput {
+	s.AlarmConfiguration = v
+	return s
+}
+
 // SetCutoffBehavior sets the CutoffBehavior field's value.
 func (s *GetMaintenanceWindowTaskOutput) SetCutoffBehavior(v string) *GetMaintenanceWindowTaskOutput {
 	s.CutoffBehavior = &v
@@ -32962,6 +33820,9 @@ func (s *GetMaintenanceWindowTaskOutput) SetWindowTaskId(v string) *GetMaintenan
 type GetOpsItemInput struct {
 	_ struct{} `type:"structure"`
 
+	// The OpsItem Amazon Resource Name (ARN).
+	OpsItemArn *string `min:"20" type:"string"`
+
 	// The ID of the OpsItem that you want to get.
 	//
 	// OpsItemId is a required field
@@ -32989,6 +33850,9 @@ func (s GetOpsItemInput) GoString() string {
 // Validate inspects the fields of the type to determine if they are valid.
 func (s *GetOpsItemInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "GetOpsItemInput"}
+	if s.OpsItemArn != nil && len(*s.OpsItemArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("OpsItemArn", 20))
+	}
 	if s.OpsItemId == nil {
 		invalidParams.Add(request.NewErrParamRequired("OpsItemId"))
 	}
@@ -32997,6 +33861,12 @@ func (s *GetOpsItemInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetOpsItemArn sets the OpsItemArn field's value.
+func (s *GetOpsItemInput) SetOpsItemArn(v string) *GetOpsItemInput {
+	s.OpsItemArn = &v
+	return s
 }
 
 // SetOpsItemId sets the OpsItemId field's value.
@@ -34145,11 +35015,186 @@ func (s *GetPatchBaselineOutput) SetSources(v []*PatchSource) *GetPatchBaselineO
 	return s
 }
 
+type GetResourcePoliciesInput struct {
+	_ struct{} `type:"structure"`
+
+	// The maximum number of items to return for this call. The call also returns
+	// a token that you can specify in a subsequent call to get the next set of
+	// results.
+	MaxResults *int64 `min:"1" type:"integer"`
+
+	// A token to start the list. Use this token to get the next set of results.
+	NextToken *string `type:"string"`
+
+	// Amazon Resource Name (ARN) of the resource to which the policies are attached.
+	//
+	// ResourceArn is a required field
+	ResourceArn *string `min:"20" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetResourcePoliciesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetResourcePoliciesInput"}
+	if s.MaxResults != nil && *s.MaxResults < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
+	}
+	if s.ResourceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceArn"))
+	}
+	if s.ResourceArn != nil && len(*s.ResourceArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceArn", 20))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *GetResourcePoliciesInput) SetMaxResults(v int64) *GetResourcePoliciesInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *GetResourcePoliciesInput) SetNextToken(v string) *GetResourcePoliciesInput {
+	s.NextToken = &v
+	return s
+}
+
+// SetResourceArn sets the ResourceArn field's value.
+func (s *GetResourcePoliciesInput) SetResourceArn(v string) *GetResourcePoliciesInput {
+	s.ResourceArn = &v
+	return s
+}
+
+type GetResourcePoliciesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The token for the next set of items to return. Use this token to get the
+	// next set of results.
+	NextToken *string `type:"string"`
+
+	// An array of the Policy object.
+	Policies []*GetResourcePoliciesResponseEntry `type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesOutput) GoString() string {
+	return s.String()
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *GetResourcePoliciesOutput) SetNextToken(v string) *GetResourcePoliciesOutput {
+	s.NextToken = &v
+	return s
+}
+
+// SetPolicies sets the Policies field's value.
+func (s *GetResourcePoliciesOutput) SetPolicies(v []*GetResourcePoliciesResponseEntry) *GetResourcePoliciesOutput {
+	s.Policies = v
+	return s
+}
+
+// A resource policy helps you to define the IAM entity (for example, an Amazon
+// Web Services account) that can manage your Systems Manager resources. Currently,
+// OpsItemGroup is the only resource that supports Systems Manager resource
+// policies. The resource policy for OpsItemGroup enables Amazon Web Services
+// accounts to view and interact with OpsCenter operational work items (OpsItems).
+type GetResourcePoliciesResponseEntry struct {
+	_ struct{} `type:"structure"`
+
+	// A resource policy helps you to define the IAM entity (for example, an Amazon
+	// Web Services account) that can manage your Systems Manager resources. Currently,
+	// OpsItemGroup is the only resource that supports Systems Manager resource
+	// policies. The resource policy for OpsItemGroup enables Amazon Web Services
+	// accounts to view and interact with OpsCenter operational work items (OpsItems).
+	Policy *string `type:"string"`
+
+	// ID of the current policy version. The hash helps to prevent a situation where
+	// multiple users attempt to overwrite a policy. You must provide this hash
+	// when updating or deleting a policy.
+	PolicyHash *string `type:"string"`
+
+	// A policy ID.
+	PolicyId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesResponseEntry) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s GetResourcePoliciesResponseEntry) GoString() string {
+	return s.String()
+}
+
+// SetPolicy sets the Policy field's value.
+func (s *GetResourcePoliciesResponseEntry) SetPolicy(v string) *GetResourcePoliciesResponseEntry {
+	s.Policy = &v
+	return s
+}
+
+// SetPolicyHash sets the PolicyHash field's value.
+func (s *GetResourcePoliciesResponseEntry) SetPolicyHash(v string) *GetResourcePoliciesResponseEntry {
+	s.PolicyHash = &v
+	return s
+}
+
+// SetPolicyId sets the PolicyId field's value.
+func (s *GetResourcePoliciesResponseEntry) SetPolicyId(v string) *GetResourcePoliciesResponseEntry {
+	s.PolicyId = &v
+	return s
+}
+
 // The request body of the GetServiceSetting API operation.
 type GetServiceSettingInput struct {
 	_ struct{} `type:"structure"`
 
 	// The ID of the service setting to get. The setting ID can be one of the following.
+	//
+	//    * /ssm/managed-instance/default-ec2-instance-management-role
 	//
 	//    * /ssm/automation/customer-script-log-destination
 	//
@@ -35134,14 +36179,26 @@ func (s *InstanceInformationFilter) SetValueSet(v []*string) *InstanceInformatio
 type InstanceInformationStringFilter struct {
 	_ struct{} `type:"structure"`
 
-	// The filter key name to describe your managed nodes. For example:
+	// The filter key name to describe your managed nodes.
 	//
-	// "InstanceIds"|"AgentVersion"|"PingStatus"|"PlatformTypes"|"ActivationIds"|"IamRole"|"ResourceType"|"AssociationStatus"|"Tag
-	// Key"
+	// Valid filter key values: ActivationIds | AgentVersion | AssociationStatus
+	// | IamRole | InstanceIds | PingStatus | PlatformTypes | ResourceType | SourceIds
+	// | SourceTypes | "tag-key" | "tag:{keyname}
 	//
-	// Tag key isn't a valid filter. You must specify either tag-key or tag:keyname
-	// and a string. Here are some valid examples: tag-key, tag:123, tag:al!, tag:Windows.
-	// Here are some invalid examples: tag-keys, Tag Key, tag:, tagKey, abc:keyname.
+	//    * Valid values for the AssociationStatus filter key: Success | Pending
+	//    | Failed
+	//
+	//    * Valid values for the PingStatus filter key: Online | ConnectionLost
+	//    | Inactive (deprecated)
+	//
+	//    * Valid values for the PlatformType filter key: Windows | Linux | MacOS
+	//
+	//    * Valid values for the ResourceType filter key: EC2Instance | ManagedInstance
+	//
+	//    * Valid values for the SourceType filter key: AWS::EC2::Instance | AWS::SSM::ManagedInstance
+	//    | AWS::IoT::Thing
+	//
+	//    * Valid tag examples: Key=tag-key,Values=Purpose | Key=tag:Purpose,Values=Test.
 	//
 	// Key is a required field
 	Key *string `min:"1" type:"string" required:"true"`
@@ -35216,11 +36273,10 @@ type InstancePatchState struct {
 	// BaselineId is a required field
 	BaselineId *string `min:"20" type:"string" required:"true"`
 
-	// The number of managed nodes where patches that are specified as Critical
-	// for compliance reporting in the patch baseline aren't installed. These patches
-	// might be missing, have failed installation, were rejected, or were installed
-	// but awaiting a required managed node reboot. The status of these managed
-	// nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Critical for compliance
+	// reporting in the patch baseline aren't installed. These patches might be
+	// missing, have failed installation, were rejected, or were installed but awaiting
+	// a required managed node reboot. The status of these managed nodes is NON_COMPLIANT.
 	CriticalNonCompliantCount *int64 `type:"integer"`
 
 	// The number of patches from the patch baseline that were attempted to be installed
@@ -35297,9 +36353,9 @@ type InstancePatchState struct {
 	// OperationStartTime is a required field
 	OperationStartTime *time.Time `type:"timestamp" required:"true"`
 
-	// The number of managed nodes with patches installed that are specified as
-	// other than Critical or Security but aren't compliant with the patch baseline.
-	// The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as other than Critical
+	// or Security but aren't compliant with the patch baseline. The status of these
+	// managed nodes is NON_COMPLIANT.
 	OtherNonCompliantCount *int64 `type:"integer"`
 
 	// Placeholder information. This field will always be empty in the current release
@@ -35330,10 +36386,10 @@ type InstancePatchState struct {
 	//    until a reboot is performed.
 	RebootOption *string `type:"string" enum:"RebootOption"`
 
-	// The number of managed nodes where patches that are specified as Security
-	// in a patch advisory aren't installed. These patches might be missing, have
-	// failed installation, were rejected, or were installed but awaiting a required
-	// managed node reboot. The status of these managed nodes is NON_COMPLIANT.
+	// The number of patches per node that are specified as Security in a patch
+	// advisory aren't installed. These patches might be missing, have failed installation,
+	// were rejected, or were installed but awaiting a required managed node reboot.
+	// The status of these managed nodes is NON_COMPLIANT.
 	SecurityNonCompliantCount *int64 `type:"integer"`
 
 	// The ID of the patch baseline snapshot used during the patching operation
@@ -38525,6 +39581,70 @@ func (s *InvalidSchedule) StatusCode() int {
 
 // RequestID returns the service's response RequestID for request.
 func (s *InvalidSchedule) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The specified tag key or value isn't valid.
+type InvalidTag struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidTag) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s InvalidTag) GoString() string {
+	return s.String()
+}
+
+func newErrorInvalidTag(v protocol.ResponseMetadata) error {
+	return &InvalidTag{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *InvalidTag) Code() string {
+	return "InvalidTag"
+}
+
+// Message returns the exception's message.
+func (s *InvalidTag) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *InvalidTag) OrigErr() error {
+	return nil
+}
+
+func (s *InvalidTag) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *InvalidTag) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *InvalidTag) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
@@ -41980,7 +43100,7 @@ func (s *ListTagsForResourceOutput) SetTagList(v []*Tag) *ListTagsForResourceOut
 type LoggingInfo struct {
 	_ struct{} `type:"structure"`
 
-	// The name of an S3 bucket where execution logs are stored .
+	// The name of an S3 bucket where execution logs are stored.
 	//
 	// S3BucketName is a required field
 	S3BucketName *string `min:"3" type:"string" required:"true"`
@@ -42205,6 +43325,9 @@ func (s *MaintenanceWindowExecution) SetWindowId(v string) *MaintenanceWindowExe
 type MaintenanceWindowExecutionTaskIdentity struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The time the task execution finished.
 	EndTime *time.Time `type:"timestamp"`
 
@@ -42227,6 +43350,9 @@ type MaintenanceWindowExecutionTaskIdentity struct {
 	// The type of task that ran.
 	TaskType *string `type:"string" enum:"MaintenanceWindowTaskType"`
 
+	// The CloudWatch alarm that was invoked by the maintenance window task.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// The ID of the maintenance window execution that ran the task.
 	WindowExecutionId *string `min:"36" type:"string"`
 }
@@ -42247,6 +43373,12 @@ func (s MaintenanceWindowExecutionTaskIdentity) String() string {
 // value will be replaced with "sensitive".
 func (s MaintenanceWindowExecutionTaskIdentity) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *MaintenanceWindowExecutionTaskIdentity) SetAlarmConfiguration(v *AlarmConfiguration) *MaintenanceWindowExecutionTaskIdentity {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetEndTime sets the EndTime field's value.
@@ -42288,6 +43420,12 @@ func (s *MaintenanceWindowExecutionTaskIdentity) SetTaskExecutionId(v string) *M
 // SetTaskType sets the TaskType field's value.
 func (s *MaintenanceWindowExecutionTaskIdentity) SetTaskType(v string) *MaintenanceWindowExecutionTaskIdentity {
 	s.TaskType = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *MaintenanceWindowExecutionTaskIdentity) SetTriggeredAlarms(v []*AlarmStateInformation) *MaintenanceWindowExecutionTaskIdentity {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -43149,6 +44287,9 @@ func (s *MaintenanceWindowTarget) SetWindowTargetId(v string) *MaintenanceWindow
 type MaintenanceWindowTask struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm applied to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The specification for whether tasks should continue to run after the cutoff
 	// time specified in the maintenance windows is reached.
 	CutoffBehavior *string `type:"string" enum:"MaintenanceWindowTaskCutoffBehavior"`
@@ -43253,6 +44394,12 @@ func (s MaintenanceWindowTask) String() string {
 // value will be replaced with "sensitive".
 func (s MaintenanceWindowTask) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *MaintenanceWindowTask) SetAlarmConfiguration(v *AlarmConfiguration) *MaintenanceWindowTask {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -43577,15 +44724,14 @@ func (s *MetadataValue) SetValue(v string) *MetadataValue {
 type ModifyDocumentPermissionInput struct {
 	_ struct{} `type:"structure"`
 
-	// The Amazon Web Services user accounts that should have access to the document.
-	// The account IDs can either be a group of account IDs or All.
+	// The Amazon Web Services users that should have access to the document. The
+	// account IDs can either be a group of account IDs or All.
 	AccountIdsToAdd []*string `type:"list"`
 
-	// The Amazon Web Services user accounts that should no longer have access to
-	// the document. The Amazon Web Services user account can either be a group
-	// of account IDs or All. This action has a higher priority than AccountIdsToAdd.
-	// If you specify an account ID to add and the same ID to remove, the system
-	// removes access to the document.
+	// The Amazon Web Services users that should no longer have access to the document.
+	// The Amazon Web Services user can either be a group of account IDs or All.
+	// This action has a higher priority than AccountIdsToAdd. If you specify an
+	// ID to add and the same ID to remove, the system removes access to the document.
 	AccountIdsToRemove []*string `type:"list"`
 
 	// The name of the document that you want to share.
@@ -44148,11 +45294,22 @@ type OpsItem struct {
 	// in the Amazon Web Services Systems Manager User Guide.
 	OperationalData map[string]*OpsItemDataValue `type:"map"`
 
+	// The OpsItem Amazon Resource Name (ARN).
+	OpsItemArn *string `min:"20" type:"string"`
+
 	// The ID of the OpsItem.
 	OpsItemId *string `type:"string"`
 
-	// The type of OpsItem. Currently, the only valid values are /aws/changerequest
-	// and /aws/issue.
+	// The type of OpsItem. Systems Manager supports the following types of OpsItems:
+	//
+	//    * /aws/issue This type of OpsItem is used for default OpsItems created
+	//    by OpsCenter.
+	//
+	//    * /aws/changerequest This type of OpsItem is used by Change Manager for
+	//    reviewing and approving or rejecting change requests.
+	//
+	//    * /aws/insights This type of OpsItem is used by OpsCenter for aggregating
+	//    and reporting on duplicate OpsItems.
 	OpsItemType *string `type:"string"`
 
 	// The time specified in a change request for a runbook workflow to end. Currently
@@ -44270,6 +45427,12 @@ func (s *OpsItem) SetOperationalData(v map[string]*OpsItemDataValue) *OpsItem {
 	return s
 }
 
+// SetOpsItemArn sets the OpsItemArn field's value.
+func (s *OpsItem) SetOpsItemArn(v string) *OpsItem {
+	s.OpsItemArn = &v
+	return s
+}
+
 // SetOpsItemId sets the OpsItemId field's value.
 func (s *OpsItem) SetOpsItemId(v string) *OpsItem {
 	s.OpsItemId = &v
@@ -44334,6 +45497,72 @@ func (s *OpsItem) SetTitle(v string) *OpsItem {
 func (s *OpsItem) SetVersion(v string) *OpsItem {
 	s.Version = &v
 	return s
+}
+
+// You don't have permission to view OpsItems in the specified account. Verify
+// that your account is configured either as a Systems Manager delegated administrator
+// or that you are logged into the Organizations management account.
+type OpsItemAccessDeniedException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s OpsItemAccessDeniedException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s OpsItemAccessDeniedException) GoString() string {
+	return s.String()
+}
+
+func newErrorOpsItemAccessDeniedException(v protocol.ResponseMetadata) error {
+	return &OpsItemAccessDeniedException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *OpsItemAccessDeniedException) Code() string {
+	return "OpsItemAccessDeniedException"
+}
+
+// Message returns the exception's message.
+func (s *OpsItemAccessDeniedException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *OpsItemAccessDeniedException) OrigErr() error {
+	return nil
+}
+
+func (s *OpsItemAccessDeniedException) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *OpsItemAccessDeniedException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *OpsItemAccessDeniedException) RequestID() string {
+	return s.RespMetadata.RequestID
 }
 
 // The OpsItem already exists.
@@ -45299,8 +46528,16 @@ type OpsItemSummary struct {
 	// The ID of the OpsItem.
 	OpsItemId *string `type:"string"`
 
-	// The type of OpsItem. Currently, the only valid values are /aws/changerequest
-	// and /aws/issue.
+	// The type of OpsItem. Systems Manager supports the following types of OpsItems:
+	//
+	//    * /aws/issue This type of OpsItem is used for default OpsItems created
+	//    by OpsCenter.
+	//
+	//    * /aws/changerequest This type of OpsItem is used by Change Manager for
+	//    reviewing and approving or rejecting change requests.
+	//
+	//    * /aws/insights This type of OpsItem is used by OpsCenter for aggregating
+	//    and reporting on duplicate OpsItems.
 	OpsItemType *string `type:"string"`
 
 	// The time specified in a change request for a runbook workflow to end. Currently
@@ -48579,9 +49816,21 @@ type PutParameterInput struct {
 	// When you create a String parameter and specify aws:ec2:image, Amazon Web
 	// Services Systems Manager validates the parameter value is in the required
 	// format, such as ami-12345abcdeEXAMPLE, and that the specified AMI is available
-	// in your Amazon Web Services account. For more information, see Native parameter
-	// support for Amazon Machine Image (AMI) IDs (https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store-ec2-aliases.html)
-	// in the Amazon Web Services Systems Manager User Guide.
+	// in your Amazon Web Services account.
+	//
+	// If the action is successful, the service sends back an HTTP 200 response
+	// which indicates a successful PutParameter call for all cases except for data
+	// type aws:ec2:image. If you call PutParameter with aws:ec2:image data type,
+	// a successful HTTP 200 response does not guarantee that your parameter was
+	// successfully created or updated. The aws:ec2:image value is validated asynchronously,
+	// and the PutParameter call returns before the validation is complete. If you
+	// submit an invalid AMI value, the PutParameter operation will return success,
+	// but the asynchronous validation will fail and the parameter will not be created
+	// or updated. To monitor whether your aws:ec2:image parameters are created
+	// successfully, see Setting up notifications or trigger actions based on Parameter
+	// Store events (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-cwe.html).
+	// For more information about AMI format validation , see Native parameter support
+	// for Amazon Machine Image (AMI) IDs (https://docs.aws.amazon.com/systems-manager/latest/userguide/parameter-store-ec2-aliases.html).
 	DataType *string `type:"string"`
 
 	// Information about the parameter that you want to add to the system. Optional
@@ -48591,16 +49840,12 @@ type PutParameterInput struct {
 	Description *string `type:"string"`
 
 	// The Key Management Service (KMS) ID that you want to use to encrypt a parameter.
-	// Either the default KMS key automatically assigned to your Amazon Web Services
-	// account or a custom key. Required for parameters that use the SecureString
-	// data type.
+	// Use a custom key for better security. Required for parameters that use the
+	// SecureString data type.
 	//
 	// If you don't specify a key ID, the system uses the default key associated
-	// with your Amazon Web Services account.
-	//
-	//    * To use your default KMS key, choose the SecureString data type, and
-	//    do not specify the Key ID when you create the parameter. The system automatically
-	//    populates Key ID with your default KMS key.
+	// with your Amazon Web Services account which is not as secure as using a custom
+	// key.
 	//
 	//    * To use a custom KMS key, choose the SecureString data type with the
 	//    Key ID parameter.
@@ -48936,6 +50181,130 @@ func (s *PutParameterOutput) SetTier(v string) *PutParameterOutput {
 // SetVersion sets the Version field's value.
 func (s *PutParameterOutput) SetVersion(v int64) *PutParameterOutput {
 	s.Version = &v
+	return s
+}
+
+type PutResourcePolicyInput struct {
+	_ struct{} `type:"structure"`
+
+	// A policy you want to associate with a resource.
+	//
+	// Policy is a required field
+	Policy *string `type:"string" required:"true"`
+
+	// ID of the current policy version. The hash helps to prevent a situation where
+	// multiple users attempt to overwrite a policy. You must provide this hash
+	// when updating or deleting a policy.
+	PolicyHash *string `type:"string"`
+
+	// The policy ID.
+	PolicyId *string `type:"string"`
+
+	// Amazon Resource Name (ARN) of the resource to which you want to attach a
+	// policy.
+	//
+	// ResourceArn is a required field
+	ResourceArn *string `min:"20" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutResourcePolicyInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutResourcePolicyInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PutResourcePolicyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PutResourcePolicyInput"}
+	if s.Policy == nil {
+		invalidParams.Add(request.NewErrParamRequired("Policy"))
+	}
+	if s.ResourceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceArn"))
+	}
+	if s.ResourceArn != nil && len(*s.ResourceArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceArn", 20))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetPolicy sets the Policy field's value.
+func (s *PutResourcePolicyInput) SetPolicy(v string) *PutResourcePolicyInput {
+	s.Policy = &v
+	return s
+}
+
+// SetPolicyHash sets the PolicyHash field's value.
+func (s *PutResourcePolicyInput) SetPolicyHash(v string) *PutResourcePolicyInput {
+	s.PolicyHash = &v
+	return s
+}
+
+// SetPolicyId sets the PolicyId field's value.
+func (s *PutResourcePolicyInput) SetPolicyId(v string) *PutResourcePolicyInput {
+	s.PolicyId = &v
+	return s
+}
+
+// SetResourceArn sets the ResourceArn field's value.
+func (s *PutResourcePolicyInput) SetResourceArn(v string) *PutResourcePolicyInput {
+	s.ResourceArn = &v
+	return s
+}
+
+type PutResourcePolicyOutput struct {
+	_ struct{} `type:"structure"`
+
+	// ID of the current policy version.
+	PolicyHash *string `type:"string"`
+
+	// The policy ID. To update a policy, you must specify PolicyId and PolicyHash.
+	PolicyId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutResourcePolicyOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s PutResourcePolicyOutput) GoString() string {
+	return s.String()
+}
+
+// SetPolicyHash sets the PolicyHash field's value.
+func (s *PutResourcePolicyOutput) SetPolicyHash(v string) *PutResourcePolicyOutput {
+	s.PolicyHash = &v
+	return s
+}
+
+// SetPolicyId sets the PolicyId field's value.
+func (s *PutResourcePolicyOutput) SetPolicyId(v string) *PutResourcePolicyOutput {
+	s.PolicyId = &v
 	return s
 }
 
@@ -49342,6 +50711,9 @@ func (s *RegisterTargetWithMaintenanceWindowOutput) SetWindowTargetId(v string) 
 type RegisterTaskWithMaintenanceWindowInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// User-provided idempotency token.
 	ClientToken *string `min:"1" type:"string" idempotencyToken:"true"`
 
@@ -49523,6 +50895,11 @@ func (s *RegisterTaskWithMaintenanceWindowInput) Validate() error {
 	if s.WindowId != nil && len(*s.WindowId) < 20 {
 		invalidParams.Add(request.NewErrParamMinLen("WindowId", 20))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.LoggingInfo != nil {
 		if err := s.LoggingInfo.Validate(); err != nil {
 			invalidParams.AddNested("LoggingInfo", err.(request.ErrInvalidParams))
@@ -49548,6 +50925,12 @@ func (s *RegisterTaskWithMaintenanceWindowInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *RegisterTaskWithMaintenanceWindowInput) SetAlarmConfiguration(v *AlarmConfiguration) *RegisterTaskWithMaintenanceWindowInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetClientToken sets the ClientToken field's value.
@@ -51230,6 +52613,209 @@ func (s *ResourceLimitExceededException) RequestID() string {
 	return s.RespMetadata.RequestID
 }
 
+// The hash provided in the call doesn't match the stored hash. This exception
+// is thrown when trying to update an obsolete policy version or when multiple
+// requests to update a policy are sent.
+type ResourcePolicyConflictException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyConflictException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyConflictException) GoString() string {
+	return s.String()
+}
+
+func newErrorResourcePolicyConflictException(v protocol.ResponseMetadata) error {
+	return &ResourcePolicyConflictException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *ResourcePolicyConflictException) Code() string {
+	return "ResourcePolicyConflictException"
+}
+
+// Message returns the exception's message.
+func (s *ResourcePolicyConflictException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *ResourcePolicyConflictException) OrigErr() error {
+	return nil
+}
+
+func (s *ResourcePolicyConflictException) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *ResourcePolicyConflictException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *ResourcePolicyConflictException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// One or more parameters specified for the call aren't valid. Verify the parameters
+// and their values and try again.
+type ResourcePolicyInvalidParameterException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+
+	ParameterNames []*string `type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyInvalidParameterException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyInvalidParameterException) GoString() string {
+	return s.String()
+}
+
+func newErrorResourcePolicyInvalidParameterException(v protocol.ResponseMetadata) error {
+	return &ResourcePolicyInvalidParameterException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *ResourcePolicyInvalidParameterException) Code() string {
+	return "ResourcePolicyInvalidParameterException"
+}
+
+// Message returns the exception's message.
+func (s *ResourcePolicyInvalidParameterException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *ResourcePolicyInvalidParameterException) OrigErr() error {
+	return nil
+}
+
+func (s *ResourcePolicyInvalidParameterException) Error() string {
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *ResourcePolicyInvalidParameterException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *ResourcePolicyInvalidParameterException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// The PutResourcePolicy API action enforces two limits. A policy can't be greater
+// than 1024 bytes in size. And only one policy can be attached to OpsItemGroup.
+// Verify these limits and try again.
+type ResourcePolicyLimitExceededException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Limit *int64 `type:"integer"`
+
+	LimitType *string `type:"string"`
+
+	Message_ *string `locationName:"Message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyLimitExceededException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ResourcePolicyLimitExceededException) GoString() string {
+	return s.String()
+}
+
+func newErrorResourcePolicyLimitExceededException(v protocol.ResponseMetadata) error {
+	return &ResourcePolicyLimitExceededException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *ResourcePolicyLimitExceededException) Code() string {
+	return "ResourcePolicyLimitExceededException"
+}
+
+// Message returns the exception's message.
+func (s *ResourcePolicyLimitExceededException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *ResourcePolicyLimitExceededException) OrigErr() error {
+	return nil
+}
+
+func (s *ResourcePolicyLimitExceededException) Error() string {
+	return fmt.Sprintf("%s: %s\n%s", s.Code(), s.Message(), s.String())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *ResourcePolicyLimitExceededException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *ResourcePolicyLimitExceededException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
 // The inventory item result attribute.
 type ResultAttribute struct {
 	_ struct{} `type:"structure"`
@@ -51873,6 +53459,9 @@ func (s SendAutomationSignalOutput) GoString() string {
 type SendCommandInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Enables Amazon Web Services Systems Manager to send Run Command output to
 	// Amazon CloudWatch Logs. Run Command is a capability of Amazon Web Services
 	// Systems Manager.
@@ -51973,6 +53562,11 @@ type SendCommandInput struct {
 	// The ARN of the Identity and Access Management (IAM) service role to use to
 	// publish Amazon Simple Notification Service (Amazon SNS) notifications for
 	// Run Command commands.
+	//
+	// This role must provide the sns:Publish permission for your notification topic.
+	// For information about creating and using this service role, see Monitoring
+	// Systems Manager status changes using Amazon SNS notifications (https://docs.aws.amazon.com/systems-manager/latest/userguide/monitoring-sns-notifications.html)
+	// in the Amazon Web Services Systems Manager User Guide.
 	ServiceRoleArn *string `type:"string"`
 
 	// An array of search criteria that targets managed nodes using a Key,Value
@@ -52033,6 +53627,11 @@ func (s *SendCommandInput) Validate() error {
 	if s.TimeoutSeconds != nil && *s.TimeoutSeconds < 30 {
 		invalidParams.Add(request.NewErrParamMinValue("TimeoutSeconds", 30))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.CloudWatchOutputConfig != nil {
 		if err := s.CloudWatchOutputConfig.Validate(); err != nil {
 			invalidParams.AddNested("CloudWatchOutputConfig", err.(request.ErrInvalidParams))
@@ -52053,6 +53652,12 @@ func (s *SendCommandInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *SendCommandInput) SetAlarmConfiguration(v *AlarmConfiguration) *SendCommandInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCloudWatchOutputConfig sets the CloudWatchOutputConfig field's value.
@@ -52378,7 +53983,7 @@ type Session struct {
 	// Reserved for future use.
 	OutputUrl *SessionManagerOutputUrl `type:"structure"`
 
-	// The ID of the Amazon Web Services user account that started the session.
+	// The ID of the Amazon Web Services user that started the session.
 	Owner *string `min:"1" type:"string"`
 
 	// The reason for connecting to the instance.
@@ -52503,8 +54108,8 @@ type SessionFilter struct {
 	//    * Target: Specify a managed node to which session connections have been
 	//    made.
 	//
-	//    * Owner: Specify an Amazon Web Services user account to see a list of
-	//    sessions started by that user.
+	//    * Owner: Specify an Amazon Web Services user to see a list of sessions
+	//    started by that user.
 	//
 	//    * Status: Specify a valid session status to see a list of all sessions
 	//    with that status. Status values you can specify include: Connected Connecting
@@ -52770,6 +54375,9 @@ func (s StartAssociationsOnceOutput) GoString() string {
 type StartAutomationExecutionInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your automation.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// User-provided idempotency token. The token must be unique, is case insensitive,
 	// enforces the UUID format, and can't be reused.
 	ClientToken *string `min:"36" type:"string"`
@@ -52891,6 +54499,11 @@ func (s *StartAutomationExecutionInput) Validate() error {
 	if s.TargetParameterName != nil && len(*s.TargetParameterName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetParameterName", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.Tags != nil {
 		for i, v := range s.Tags {
 			if v == nil {
@@ -52926,6 +54539,12 @@ func (s *StartAutomationExecutionInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *StartAutomationExecutionInput) SetAlarmConfiguration(v *AlarmConfiguration) *StartAutomationExecutionInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetClientToken sets the ClientToken field's value.
@@ -53377,8 +54996,10 @@ type StartSessionOutput struct {
 	// session-id represents the ID of a Session Manager session, such as 1a2b3c4dEXAMPLE.
 	StreamUrl *string `type:"string"`
 
-	// An encrypted token value containing session and caller information. Used
-	// to authenticate the connection to the managed node.
+	// An encrypted token value containing session and caller information. This
+	// token is used to authenticate the connection to the managed node, and is
+	// valid only long enough to ensure the connection is successful. Never share
+	// your session's token.
 	TokenValue *string `type:"string"`
 }
 
@@ -53556,6 +55177,9 @@ type StepExecution struct {
 	// The timeout seconds of the step.
 	TimeoutSeconds *int64 `type:"long"`
 
+	// The CloudWatch alarms that were invoked by the automation.
+	TriggeredAlarms []*AlarmStateInformation `min:"1" type:"list"`
+
 	// Strategies used when step fails, we support Continue and Abort. Abort will
 	// fail the automation when the step fails. Continue will ignore the failure
 	// of current step and allow automation to run the next step. With conditional
@@ -53705,6 +55329,12 @@ func (s *StepExecution) SetTargets(v []*Target) *StepExecution {
 // SetTimeoutSeconds sets the TimeoutSeconds field's value.
 func (s *StepExecution) SetTimeoutSeconds(v int64) *StepExecution {
 	s.TimeoutSeconds = &v
+	return s
+}
+
+// SetTriggeredAlarms sets the TriggeredAlarms field's value.
+func (s *StepExecution) SetTriggeredAlarms(v []*AlarmStateInformation) *StepExecution {
+	s.TriggeredAlarms = v
 	return s
 }
 
@@ -53942,7 +55572,7 @@ type Tag struct {
 	// The value of the tag.
 	//
 	// Value is a required field
-	Value *string `min:"1" type:"string" required:"true"`
+	Value *string `type:"string" required:"true"`
 }
 
 // String returns the string representation.
@@ -53974,9 +55604,6 @@ func (s *Tag) Validate() error {
 	}
 	if s.Value == nil {
 		invalidParams.Add(request.NewErrParamRequired("Value"))
-	}
-	if s.Value != nil && len(*s.Value) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -54185,6 +55812,10 @@ type TargetLocation struct {
 	// The Amazon Web Services Regions targeted by the current Automation execution.
 	Regions []*string `min:"1" type:"list"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	TargetLocationAlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The maximum number of Amazon Web Services Regions and Amazon Web Services
 	// accounts allowed to run the Automation concurrently.
 	TargetLocationMaxConcurrency *string `min:"1" type:"string"`
@@ -54230,6 +55861,11 @@ func (s *TargetLocation) Validate() error {
 	if s.TargetLocationMaxErrors != nil && len(*s.TargetLocationMaxErrors) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocationMaxErrors", 1))
 	}
+	if s.TargetLocationAlarmConfiguration != nil {
+		if err := s.TargetLocationAlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("TargetLocationAlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -54252,6 +55888,12 @@ func (s *TargetLocation) SetExecutionRoleName(v string) *TargetLocation {
 // SetRegions sets the Regions field's value.
 func (s *TargetLocation) SetRegions(v []*string) *TargetLocation {
 	s.Regions = v
+	return s
+}
+
+// SetTargetLocationAlarmConfiguration sets the TargetLocationAlarmConfiguration field's value.
+func (s *TargetLocation) SetTargetLocationAlarmConfiguration(v *AlarmConfiguration) *TargetLocation {
+	s.TargetLocationAlarmConfiguration = v
 	return s
 }
 
@@ -55195,6 +56837,10 @@ func (s *UnsupportedPlatformType) RequestID() string {
 type UpdateAssociationInput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you want to apply to an automation or
+	// command.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// By default, when you update an association, the system runs it immediately
 	// after it is updated and then according to the schedule you specified. Specify
 	// this option if you don't want an association to run immediately after you
@@ -55397,6 +57043,11 @@ func (s *UpdateAssociationInput) Validate() error {
 	if s.TargetLocations != nil && len(s.TargetLocations) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetLocations", 1))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.OutputLocation != nil {
 		if err := s.OutputLocation.Validate(); err != nil {
 			invalidParams.AddNested("OutputLocation", err.(request.ErrInvalidParams))
@@ -55427,6 +57078,12 @@ func (s *UpdateAssociationInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateAssociationInput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateAssociationInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetApplyOnlyAtCronInterval sets the ApplyOnlyAtCronInterval field's value.
@@ -56610,6 +58267,9 @@ func (s *UpdateMaintenanceWindowTargetOutput) SetWindowTargetId(v string) *Updat
 type UpdateMaintenanceWindowTaskInput struct {
 	_ struct{} `type:"structure"`
 
+	// The CloudWatch alarm you want to apply to your maintenance window task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// Indicates whether tasks should continue to run after the cutoff time specified
 	// in the maintenance windows is reached.
 	//
@@ -56796,6 +58456,11 @@ func (s *UpdateMaintenanceWindowTaskInput) Validate() error {
 	if s.WindowTaskId != nil && len(*s.WindowTaskId) < 36 {
 		invalidParams.Add(request.NewErrParamMinLen("WindowTaskId", 36))
 	}
+	if s.AlarmConfiguration != nil {
+		if err := s.AlarmConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("AlarmConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 	if s.LoggingInfo != nil {
 		if err := s.LoggingInfo.Validate(); err != nil {
 			invalidParams.AddNested("LoggingInfo", err.(request.ErrInvalidParams))
@@ -56821,6 +58486,12 @@ func (s *UpdateMaintenanceWindowTaskInput) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateMaintenanceWindowTaskInput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateMaintenanceWindowTaskInput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -56916,6 +58587,10 @@ func (s *UpdateMaintenanceWindowTaskInput) SetWindowTaskId(v string) *UpdateMain
 type UpdateMaintenanceWindowTaskOutput struct {
 	_ struct{} `type:"structure"`
 
+	// The details for the CloudWatch alarm you applied to your maintenance window
+	// task.
+	AlarmConfiguration *AlarmConfiguration `type:"structure"`
+
 	// The specification for whether tasks should continue to run after the cutoff
 	// time specified in the maintenance windows is reached.
 	CutoffBehavior *string `type:"string" enum:"MaintenanceWindowTaskCutoffBehavior"`
@@ -56997,6 +58672,12 @@ func (s UpdateMaintenanceWindowTaskOutput) String() string {
 // value will be replaced with "sensitive".
 func (s UpdateMaintenanceWindowTaskOutput) GoString() string {
 	return s.String()
+}
+
+// SetAlarmConfiguration sets the AlarmConfiguration field's value.
+func (s *UpdateMaintenanceWindowTaskOutput) SetAlarmConfiguration(v *AlarmConfiguration) *UpdateMaintenanceWindowTaskOutput {
+	s.AlarmConfiguration = v
+	return s
 }
 
 // SetCutoffBehavior sets the CutoffBehavior field's value.
@@ -57086,7 +58767,15 @@ func (s *UpdateMaintenanceWindowTaskOutput) SetWindowTaskId(v string) *UpdateMai
 type UpdateManagedInstanceRoleInput struct {
 	_ struct{} `type:"structure"`
 
-	// The IAM role you want to assign or change.
+	// The name of the Identity and Access Management (IAM) role that you want to
+	// assign to the managed node. This IAM role must provide AssumeRole permissions
+	// for the Amazon Web Services Systems Manager service principal ssm.amazonaws.com.
+	// For more information, see Create an IAM service role for a hybrid environment
+	// (https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-service-role.html)
+	// in the Amazon Web Services Systems Manager User Guide.
+	//
+	// You can't specify an IAM service-linked role for this parameter. You must
+	// create a unique role.
 	//
 	// IamRole is a required field
 	IamRole *string `type:"string" required:"true"`
@@ -57219,6 +58908,9 @@ type UpdateOpsItemInput struct {
 	// Keys that you want to remove from the OperationalData map.
 	OperationalDataToDelete []*string `type:"list"`
 
+	// The OpsItem Amazon Resource Name (ARN).
+	OpsItemArn *string `min:"20" type:"string"`
+
 	// The ID of the OpsItem.
 	//
 	// OpsItemId is a required field
@@ -57279,6 +58971,9 @@ func (s *UpdateOpsItemInput) Validate() error {
 	}
 	if s.Description != nil && len(*s.Description) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("Description", 1))
+	}
+	if s.OpsItemArn != nil && len(*s.OpsItemArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("OpsItemArn", 20))
 	}
 	if s.OpsItemId == nil {
 		invalidParams.Add(request.NewErrParamRequired("OpsItemId"))
@@ -57348,6 +59043,12 @@ func (s *UpdateOpsItemInput) SetOperationalData(v map[string]*OpsItemDataValue) 
 // SetOperationalDataToDelete sets the OperationalDataToDelete field's value.
 func (s *UpdateOpsItemInput) SetOperationalDataToDelete(v []*string) *UpdateOpsItemInput {
 	s.OperationalDataToDelete = v
+	return s
+}
+
+// SetOpsItemArn sets the OpsItemArn field's value.
+func (s *UpdateOpsItemInput) SetOpsItemArn(v string) *UpdateOpsItemInput {
+	s.OpsItemArn = &v
 	return s
 }
 
@@ -58006,6 +59707,8 @@ type UpdateServiceSettingInput struct {
 	// The Amazon Resource Name (ARN) of the service setting to reset. For example,
 	// arn:aws:ssm:us-east-1:111122223333:servicesetting/ssm/parameter-store/high-throughput-enabled.
 	// The setting ID can be one of the following.
+	//
+	//    * /ssm/managed-instance/default-ec2-instance-management-role
 	//
 	//    * /ssm/automation/customer-script-log-destination
 	//
@@ -58962,6 +60665,15 @@ const (
 
 	// DocumentTypeProblemAnalysisTemplate is a DocumentType enum value
 	DocumentTypeProblemAnalysisTemplate = "ProblemAnalysisTemplate"
+
+	// DocumentTypeCloudFormation is a DocumentType enum value
+	DocumentTypeCloudFormation = "CloudFormation"
+
+	// DocumentTypeConformancePackTemplate is a DocumentType enum value
+	DocumentTypeConformancePackTemplate = "ConformancePackTemplate"
+
+	// DocumentTypeQuickSetup is a DocumentType enum value
+	DocumentTypeQuickSetup = "QuickSetup"
 )
 
 // DocumentType_Values returns all elements of the DocumentType enum
@@ -58979,6 +60691,9 @@ func DocumentType_Values() []string {
 		DocumentTypeAutomationChangeTemplate,
 		DocumentTypeProblemAnalysis,
 		DocumentTypeProblemAnalysisTemplate,
+		DocumentTypeCloudFormation,
+		DocumentTypeConformancePackTemplate,
+		DocumentTypeQuickSetup,
 	}
 }
 
@@ -58995,6 +60710,22 @@ func ExecutionMode_Values() []string {
 	return []string{
 		ExecutionModeAuto,
 		ExecutionModeInteractive,
+	}
+}
+
+const (
+	// ExternalAlarmStateUnknown is a ExternalAlarmState enum value
+	ExternalAlarmStateUnknown = "UNKNOWN"
+
+	// ExternalAlarmStateAlarm is a ExternalAlarmState enum value
+	ExternalAlarmStateAlarm = "ALARM"
+)
+
+// ExternalAlarmState_Values returns all elements of the ExternalAlarmState enum
+func ExternalAlarmState_Values() []string {
+	return []string{
+		ExternalAlarmStateUnknown,
+		ExternalAlarmStateAlarm,
 	}
 }
 
@@ -59336,6 +61067,9 @@ const (
 	// OperatingSystemAmazonLinux2 is a OperatingSystem enum value
 	OperatingSystemAmazonLinux2 = "AMAZON_LINUX_2"
 
+	// OperatingSystemAmazonLinux2022 is a OperatingSystem enum value
+	OperatingSystemAmazonLinux2022 = "AMAZON_LINUX_2022"
+
 	// OperatingSystemUbuntu is a OperatingSystem enum value
 	OperatingSystemUbuntu = "UBUNTU"
 
@@ -59370,6 +61104,7 @@ func OperatingSystem_Values() []string {
 		OperatingSystemWindows,
 		OperatingSystemAmazonLinux,
 		OperatingSystemAmazonLinux2,
+		OperatingSystemAmazonLinux2022,
 		OperatingSystemUbuntu,
 		OperatingSystemRedhatEnterpriseLinux,
 		OperatingSystemSuse,
@@ -59535,6 +61270,9 @@ const (
 
 	// OpsItemFilterKeyInsightByType is a OpsItemFilterKey enum value
 	OpsItemFilterKeyInsightByType = "InsightByType"
+
+	// OpsItemFilterKeyAccountId is a OpsItemFilterKey enum value
+	OpsItemFilterKeyAccountId = "AccountId"
 )
 
 // OpsItemFilterKey_Values returns all elements of the OpsItemFilterKey enum
@@ -59567,6 +61305,7 @@ func OpsItemFilterKey_Values() []string {
 		OpsItemFilterKeyChangeRequestByTemplate,
 		OpsItemFilterKeyChangeRequestByTargetsResourceGroup,
 		OpsItemFilterKeyInsightByType,
+		OpsItemFilterKeyAccountId,
 	}
 }
 
@@ -60138,6 +61877,9 @@ const (
 
 	// ResourceTypeForTaggingAutomation is a ResourceTypeForTagging enum value
 	ResourceTypeForTaggingAutomation = "Automation"
+
+	// ResourceTypeForTaggingAssociation is a ResourceTypeForTagging enum value
+	ResourceTypeForTaggingAssociation = "Association"
 )
 
 // ResourceTypeForTagging_Values returns all elements of the ResourceTypeForTagging enum
@@ -60151,6 +61893,7 @@ func ResourceTypeForTagging_Values() []string {
 		ResourceTypeForTaggingOpsItem,
 		ResourceTypeForTaggingOpsMetadata,
 		ResourceTypeForTaggingAutomation,
+		ResourceTypeForTaggingAssociation,
 	}
 }
 
