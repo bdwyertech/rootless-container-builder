@@ -3,7 +3,7 @@ module github.com/bdwyertech/kaniko-gitlab/helper-utility
 go 1.19
 
 require (
-	github.com/Jeffail/gabs/v2 v2.6.1
+	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/aws/aws-sdk-go v1.44.77
 )
 
