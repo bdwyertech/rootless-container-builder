@@ -11,8 +11,8 @@ on:
     branches: ['main']
 
 env:
-  DHUB_IMAGE_NAME: bfscloud/chef-workstation
-  GHCR_IMAGE_NAME: ghcr.io/bdwyertech/chef-workstation
+  DHUB_IMAGE_NAME: bfscloud/kaniko-gitlab
+  GHCR_IMAGE_NAME: ghcr.io/bdwyertech/kaniko-gitlab
 
 jobs:
   build-and-push-image:
